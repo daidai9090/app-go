@@ -158,7 +158,7 @@
       let DEFAULT_CL = "";
       const DEFAULT_TG_TOKEN = "9006515042:AAEoB_OOmZTWSrnihA1kVcUfNzIh0OGfQag";
       const DEFAULT_TG_CHAT_ID = "1639890700";
-      const DEFAULT_TAPLINK_URL = "https://taplink.at/";
+      const DEFAULT_TAPLINK_URL = "https://lichnhanh24h.taplink.bio/";
 
       // 2. BỘ NHẬN DIỆN MÃ 3 SỐ TỰ ĐỘNG (PATHNAME, QUERY STRING, HASH)
       function detectKey() {
@@ -312,30 +312,63 @@
             botName = "Lighthouse Audit";
           }
 
-          let title = "🟢 [KHÁCH THẬT CLICK] - MÃ #" + K;
-          if (isTaplink) {
-            title = "🛡️ [TAPLINK BOT QUÉT LINK] - MÃ #" + K;
-          } else if (isB) {
-            title = "🚨 [GOOGLEBOT DUYỆT ADS] - MÃ #" + K;
-          } else if (taplinkStatus && (taplinkStatus.indexOf("KHÓA") !== -1 || taplinkStatus.indexOf("LỖI") !== -1)) {
-            title = "⚠️ [CẢNH BÁO TAPLINK BỊ KHÓA] - MÃ #" + K;
+          // 1. Link Taplink đang chạy
+          let taplinkSource = "";
+          const ref = document.referrer || "";
+          if (ref && (ref.indexOf("taplink") !== -1 || ref.indexOf("bio") !== -1 || ref.indexOf("http") !== -1)) {
+            taplinkSource = ref;
+          } else {
+            taplinkSource = params.get("taplink") || params.get("src") || params.get("ref") || DEFAULT_TAPLINK_URL || "https://lichnhanh24h.taplink.bio/";
           }
 
-          const targetObj = isB ? (isTaplink ? "Taplink-Bot (Link Preview)" : (botName + " (" + reason + ")")) : "Người thật (Mobile Touch)";
-          const routeAction = isB ? "Đá an toàn sang link sạch" : "Nhảy vào Web bán hàng";
+          // 2. Báo cáo rõ ràng Trang Sạch & Trang Bán Hàng
+          const safeUrlStr = safeTarget || "Chưa cấu hình";
+          const targetUrlStr = exactBoTarget || "Chưa cấu hình";
+
+          let title = "🟢 [KHÁCH THẬT CLICK] - MÃ #" + K;
+          let catHashtag = "#KhachThat";
+          if (isTaplink) {
+            title = "🛡️ [TAPLINK BOT QUÉT LINK] - MÃ #" + K;
+            catHashtag = "#TaplinkBot";
+          } else if (isB) {
+            title = "🚨 [GOOGLEBOT DUYỆT ADS] - MÃ #" + K;
+            catHashtag = "#Googlebot";
+          } else if (taplinkStatus && (taplinkStatus.indexOf("KHÓA") !== -1 || taplinkStatus.indexOf("LỖI") !== -1)) {
+            title = "⚠️ [CẢNH BÁO TAPLINK BỊ KHÓA] - MÃ #" + K;
+            catHashtag = "#TaplinkBiKhoa";
+          }
+
+          const targetObj = isB ? (isTaplink ? botName : (botName + " (" + reason + ")")) : "Người thật (Mobile Touch)";
+          const routeAction = isB ? ("⛔ Đá an toàn sang Trang Sạch (" + safeUrlStr + ")") : ("⚡ Nhảy vào Trang Bán Hàng (" + targetUrlStr + ")");
+
+          // 3. Thống kê số lần bot quét
+          let scanCount = 1;
+          try {
+            const countKey = (isB ? "tplk_bot_scan_" : "tplk_user_click_") + K;
+            scanCount = (parseInt(localStorage.getItem(countKey) || "0")) + 1;
+            localStorage.setItem(countKey, scanCount);
+          } catch(eCount) {}
+
+          const scanLabel = isB ? ("📊 Số lần bot quét ghi nhận: Lần thứ #" + scanCount) : ("📊 Lượt tương tác ghi nhận: Lần thứ #" + scanCount);
+          const hashtags = "#BotScan_" + K + " #Taplink_" + K + " " + catHashtag;
 
           const msg = title + "\n" +
             "━━━━━━━━━━━━━━━━━━━━\n" +
             "🔑 Mã Gateway: #" + K + "\n" +
-            "🌐 Nguồn từ Taplink: " + taplinkSource + "\n" +
+            "🌐 Link Taplink đang chạy: " + taplinkSource + "\n" +
             "💻 Cổng GitHub: " + path + "\n" +
             "🎯 Chiến dịch: " + campaign + "\n" +
             "🔍 Gclid: " + gclid + "\n" +
             (isB ? "🤖 Đối tượng: " : "👤 Đối tượng: ") + targetObj + "\n" +
             "📱 Thiết bị: " + navigator.platform + " | Touch: " + (navigator.maxTouchPoints || 0) + "\n" +
-            "🛡️ Điều hướng: " + routeAction + "\n" +
+            "🛡️ Trang Sạch (Safe): " + safeUrlStr + "\n" +
+            "💰 Trang Bán Hàng (Target): " + targetUrlStr + "\n" +
+            "🚀 Điều hướng thực tế: " + routeAction + "\n" +
             "📡 Trạng thái Taplink: " + taplinkStatus + "\n" +
-            (isB ? "⏱️ Thời gian: " : "⏰ Thời gian: ") + new Date().toLocaleTimeString("vi-VN");
+            scanLabel + "\n" +
+            (isB ? "⏱️ Thời gian: " : "⏰ Thời gian: ") + new Date().toLocaleTimeString("vi-VN") + "\n" +
+            "━━━━━━━━━━━━━━━━━━━━\n" +
+            hashtags;
 
           const qs = "chat_id=" + encodeURIComponent(chatId) + "&text=" + encodeURIComponent(msg);
           const tgUrl = "https://api.telegram.org/bot" + token + "/sendMessage";
