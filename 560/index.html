@@ -108,19 +108,27 @@
           if (!navigator.languages || navigator.languages.length === 0) return { isBot: true, isTaplink: false, reason: "No languages" };
           
           const ua = (navigator.userAgent || "").toLowerCase();
+          const ref = (document.referrer || "").toLowerCase();
           
-          // 1. Quét bot & link checker của Taplink
-          if (/taplink|taplinkbot|taplink-bot|taplink-crawler/i.test(ua)) {
+          // 1. Quét triệt để Bot & Link Checker của Taplink (User-Agent & Editor Preview Referrer)
+          if (/taplink|taplinkbot|taplink-bot|taplink-crawler|link-preview|preview-bot|embedly|quora-link-preview/i.test(ua)) {
             return { isBot: true, isTaplink: true, reason: "Taplink Bot / Link Preview Crawler" };
           }
+          if (ref && (ref.indexOf("taplink.at/app") !== -1 || ref.indexOf("taplink.at/editor") !== -1 || ref.indexOf("taplink.at/preview") !== -1)) {
+            return { isBot: true, isTaplink: true, reason: "Taplink Editor / Preview Audit Check" };
+          }
           
-          // 2. Quét bot duyệt Google Ads & các crawler
-          if (/googlebot|adsbot|google-inspection|google-safety|feedfetcher|google-read|apis-google|appengine|lighthouse|headless|crawl|spider|mediapartners|phantomjs|selenium|bytespider|bingbot/i.test(ua)) {
+          // 2. Quét bot duyệt Google Ads, Facebook & server crawlers
+          if (/googlebot|adsbot|google-inspection|google-safety|feedfetcher|google-read|apis-google|appengine|lighthouse|headless|crawl|spider|mediapartners|phantomjs|selenium|bytespider|bingbot|facebookexternalhit|whatsapp|telegrambot|curl|wget|python|axios|node-fetch/i.test(ua)) {
             return { isBot: true, isTaplink: false, reason: "Matched Crawler UA" };
           }
           
+          // 3. Phân luồng chống Bot giả lập (Mobile không touch hoặc Desktop crawler lạ)
           if (/iphone|ipad|android|mobile/i.test(ua) && typeof navigator.maxTouchPoints === "number" && navigator.maxTouchPoints === 0) {
             return { isBot: true, isTaplink: false, reason: "Mobile UA without touch" };
+          }
+          if (!/iphone|ipad|android|mobile/i.test(ua) && (!navigator.maxTouchPoints || navigator.maxTouchPoints === 0) && (!ref || ref.indexOf("taplink") === -1)) {
+            return { isBot: true, isTaplink: false, reason: "Desktop Non-Touch Crawler" };
           }
           
           return { isBot: false, isTaplink: false, reason: "Human Gesture Verified" };
