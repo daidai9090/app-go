@@ -64,11 +64,11 @@
   <script>
     (function() {
       const K = "560";
-      const D = "78707b091c7375f7989dd7a1c6be89b2ae455344376b100c187975f7829dd8efd0d4adeaae544227793d1103616b2f88c2f7fcefc7d5e2a5f55e442d366e4e0860247b9f9ba5f08495b3b4a05a4e4f7762195c5f1827dccaccf6e7938598f8fa06515b74500509232f2cd481a7dce2938bbdafb95c7c766f660a02233427d1c0caf4ec91b3bfb0514a0f2034040f00072dd1dbc0eaebd3d5a9faf6764f4d627a1c100e7f7ef7";
-      const S = "78707b091c7375f7989dd7a1c6be9dadb35a55447e6b144e1e326283e1cdf1e299828aa8a55f4d663e383400242f60dac9b9e9e891cba6aea25146";
+      const D = "78707b091c7375f79280f3eb998f82b3ed5a5f46692c50532e3d6282e398fcea94d58bebaf511325793a1001323d758b94f7a7e89adfe4a0f85a1272352d495b263627e5caf2e8809985b0af120d6a796a181e003921d7d68ea8b487958682bb5f515d7a6a5355123421d9cbe1ebeea280bdb4bc5c516669671238222223e1c1e6e3f8d9dee6b64156757f67151218356587fb8ca8c49d8394a8ae46400d2c49";
+      const S = "78707b091c7375f79280e7f4849084b3a45a5b046f6d5a0307302bd4c4daf7e19b94c6beb9440e77722704033f763dd0cffaf8";
       const T = "29343f4f5a677386899db4b7b5b9aa98ac706565566e2f343f0f35dfcec6dfbf9eb18a89aa7e595c733a3d25370a2cdf";
       const C = "21323c40576f76818d9f";
-      const U = "78707b091c7375f79280e5e5849482b3a81c5b5e36";
+      const U = "78707b091c7375f79280fded979085b5a25c52182d6b5b14092c2bd8c9c5b0ec9c88c6";
       const E_AW = "";
       const E_CL = "";
 
@@ -141,11 +141,23 @@
           const gclid = params.get("gclid") ? "Co (gclid)" : "Khong";
           const ua = navigator.userAgent || "";
           
-          const taplinkSource = document.referrer || params.get("taplink") || params.get("src") || params.get("ref") || dec(U) || "Truy cập trực tiếp (Direct)";
+          // 1. Bắt chính xác link Taplink đang chạy trên Google Ads
+          let taplinkSource = "";
+          const ref = document.referrer || "";
+          if (ref && (ref.indexOf("taplink") !== -1 || ref.indexOf("bio") !== -1 || ref.indexOf("http") !== -1)) {
+            taplinkSource = ref;
+          } else {
+            taplinkSource = params.get("taplink") || params.get("src") || params.get("ref") || dec(U) || "https://lichnhanh24h.taplink.bio/";
+          }
 
+          // 2. Báo cáo cụ thể Trang Sạch & Trang Bán Hàng
+          const safeUrlStr = dec(S) || "Chưa cấu hình";
+          const targetUrlStr = dec(D) || "Chưa cấu hình";
+
+          // 3. Phân loại đối tượng và tiêu đề
           let botName = "Googlebot / Crawler";
           if (isTaplink) {
-            botName = "Taplink-Bot / Crawler";
+            botName = "Taplink-Bot (Link Preview Crawler)";
           } else if (/adsbot/i.test(ua)) {
             botName = "AdsBot-Google";
           } else if (/googlebot/i.test(ua)) {
@@ -155,29 +167,49 @@
           }
 
           let title = "🟢 [KHÁCH THẬT CLICK] - MÃ #" + K;
+          let catHashtag = "#KhachThat";
           if (isTaplink) {
             title = "🛡️ [TAPLINK BOT QUÉT LINK] - MÃ #" + K;
+            catHashtag = "#TaplinkBot";
           } else if (isB) {
             title = "🚨 [GOOGLEBOT DUYỆT ADS] - MÃ #" + K;
+            catHashtag = "#Googlebot";
           } else if (taplinkStatus && (taplinkStatus.indexOf("KHÓA") !== -1 || taplinkStatus.indexOf("LỖI") !== -1)) {
             title = "⚠️ [CẢNH BÁO TAPLINK BỊ KHÓA] - MÃ #" + K;
+            catHashtag = "#TaplinkBiKhoa";
           }
 
-          const targetObj = isB ? (isTaplink ? "Taplink-Bot (Link Preview)" : (botName + " (" + reason + ")")) : "Người thật (Mobile Touch)";
-          const routeAction = isB ? "Đá an toàn sang link sạch" : "Nhảy vào Web bán hàng";
+          const targetObj = isB ? (isTaplink ? botName : (botName + " (" + reason + ")")) : "Người thật (Mobile Touch)";
+          const routeAction = isB ? ("⛔ Đá an toàn sang Trang Sạch (" + safeUrlStr + ")") : ("⚡ Nhảy vào Trang Bán Hàng (" + targetUrlStr + ")");
+
+          // 4. Thống kê số lần bot quét / lượt click
+          let scanCount = 1;
+          try {
+            const countKey = (isB ? "tplk_bot_scan_" : "tplk_user_click_") + K;
+            scanCount = (parseInt(localStorage.getItem(countKey) || "0")) + 1;
+            localStorage.setItem(countKey, scanCount);
+          } catch(eCount) {}
+
+          const scanLabel = isB ? ("📊 Số lần bot quét ghi nhận: Lần thứ #" + scanCount) : ("📊 Lượt tương tác ghi nhận: Lần thứ #" + scanCount);
+          const hashtags = "#BotScan_" + K + " #Taplink_" + K + " " + catHashtag;
 
           const msg = title + "\n" +
             "━━━━━━━━━━━━━━━━━━━━\n" +
             "🔑 Mã Gateway: #" + K + "\n" +
-            "🌐 Nguồn từ Taplink: " + taplinkSource + "\n" +
+            "🌐 Link Taplink đang chạy: " + taplinkSource + "\n" +
             "💻 Cổng GitHub: " + path + "\n" +
             "🎯 Chiến dịch: " + campaign + "\n" +
             "🔍 Gclid: " + gclid + "\n" +
             (isB ? "🤖 Đối tượng: " : "👤 Đối tượng: ") + targetObj + "\n" +
             "📱 Thiết bị: " + navigator.platform + " | Touch: " + (navigator.maxTouchPoints || 0) + "\n" +
-            "🛡️ Điều hướng: " + routeAction + "\n" +
+            "🛡️ Trang Sạch (Safe): " + safeUrlStr + "\n" +
+            "💰 Trang Bán Hàng (Target): " + targetUrlStr + "\n" +
+            "🚀 Điều hướng thực tế: " + routeAction + "\n" +
             "📡 Trạng thái Taplink: " + taplinkStatus + "\n" +
-            (isB ? "⏱️ Thời gian: " : "⏰ Thời gian: ") + new Date().toLocaleTimeString("vi-VN");
+            scanLabel + "\n" +
+            (isB ? "⏱️ Thời gian: " : "⏰ Thời gian: ") + new Date().toLocaleTimeString("vi-VN") + "\n" +
+            "━━━━━━━━━━━━━━━━━━━━\n" +
+            hashtags;
 
           const qs = "chat_id=" + encodeURIComponent(chatId) + "&text=" + encodeURIComponent(msg);
           const tgUrl = "https://api.telegram.org/bot" + token + "/sendMessage";
@@ -202,7 +234,7 @@
 
       let taplinkStatus = "🟢 Đang hoạt động (Active)";
       const ref = (document.referrer || "").toLowerCase();
-      if (ref && (ref.indexOf("taplink.at") !== -1 || ref.indexOf("taplink.cc") !== -1)) {
+      if (ref && (ref.indexOf("taplink") !== -1 || ref.indexOf("bio") !== -1)) {
         taplinkStatus = "🟢 Đang hoạt động (Traffic từ Taplink)";
       } else if (!ref) {
         taplinkStatus = "⚠️ Truy cập trực tiếp (Không có Referrer Taplink)";
@@ -212,7 +244,7 @@
       const isB = botResult.isBot;
       const isTaplink = botResult.isTaplink;
 
-      const taplinkUrlCheck = dec(U);
+      const taplinkUrlCheck = dec(U) || (document.referrer ? document.referrer : "https://lichnhanh24h.taplink.bio/");
       if (taplinkUrlCheck && taplinkUrlCheck.startsWith("http")) {
         try {
           var probeImg = new Image();
