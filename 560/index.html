@@ -182,10 +182,14 @@
           const targetObj = isB ? (isTaplink ? botName : (botName + " (" + reason + ")")) : "Người thật (Mobile Touch)";
           const routeAction = isB ? ("⛔ Đá an toàn sang Trang Sạch (" + safeUrlStr + ")") : ("⚡ Nhảy vào Trang Bán Hàng (" + targetUrlStr + ")");
 
-          // 4. Thống kê số lần bot quét / lượt click
+          // 4. Thống kê số lần bot quét / lượt click & Hỗ trợ Reset bộ đếm qua ?reset=1
           let scanCount = 1;
           try {
             const countKey = (isB ? "tplk_bot_scan_" : "tplk_user_click_") + K;
+            if (window.location.search.indexOf("reset=1") !== -1 || window.location.search.indexOf("reset_counter=1") !== -1) {
+              localStorage.removeItem("tplk_bot_scan_" + K);
+              localStorage.removeItem("tplk_user_click_" + K);
+            }
             scanCount = (parseInt(localStorage.getItem(countKey) || "0")) + 1;
             localStorage.setItem(countKey, scanCount);
           } catch(eCount) {}
