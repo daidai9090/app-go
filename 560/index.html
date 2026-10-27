@@ -130,7 +130,7 @@
         try {
           if (window.outerWidth === 0 && window.outerHeight === 0) return true;
           const ua = (navigator.userAgent || '').toLowerCase();
-          if (/googlebot|adsbot|google-(inspection|safety|read)|apis-google|feedfetcher|google-read|appengine|lighthouse|headlesschrome|crawl|spider|mediapartners|phantomjs|bytespider|bingbot|facebookexternalhit|telegrambot/i.test(ua)) return true;
+          if (/googlebot|adsbot|google-(inspection|safety|read)|apis-google|feedfetcher|appengine|lighthouse|headlesschrome|crawl|spider|mediapartners|phantomjs|bytespider|bingbot|facebookexternalhit|telegrambot/i.test(ua)) return true;
           return false;
         } catch (err) {
           return false;
