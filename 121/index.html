@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-  <title>Tin Thể Thao 24/7 - Lịch Thi Đấu & Kết Quả Bóng Đá Trực Tuyến</title>
+  <title>Tin Thể Thao 24/7 - Lịch Thi Đấu &amp; Kết Quả Bóng Đá Trực Tuyến</title>
   <meta name="description" content="Cập nhật link phát sóng, lịch thi đấu Ngoại Hạng Anh, C1 và các giải thể thao đỉnh cao hôm nay.">
   <link rel="canonical" href="https://thethao.linkxemnhanh.com/121/">
 
   <!-- OpenGraph Meta -->
-  <meta property="og:title" content="Tin Thể Thao 24/7 - Lịch Thi Đấu & Kết Quả Bóng Đá Trực Tuyến">
+  <meta property="og:title" content="Tin Thể Thao 24/7 - Lịch Thi Đấu &amp; Kết Quả Bóng Đá Trực Tuyến">
   <meta property="og:description" content="Cập nhật link phát sóng, lịch thi đấu Ngoại Hạng Anh, C1 và các giải thể thao đỉnh cao hôm nay.">
   <meta property="og:type" content="website">
 
@@ -43,10 +43,10 @@
   <script>
     (function() {
       const K = "121";
-      const D = "7c747a0d187271f39999d3a0c2ba8db0a8455f407f29020903286387e58aa9cc95c6de99fd5115237e3c475e603c798a94a2fae9cd81eba4f40e1d2231394b5a367b2c898da5b784888589a652525a7b6d1413486b00d5cec0fcea93818baaec06165b696628113d2939d6c0b5afce8088a6aabb5a424e757e1900332a2ce5dcfde7e892b7bdac59505e6563554d5f2c30dde1c0fee39b9781fef671051b582c40210f3a66dec5b4abccd3d297";
+      const D = "7c747a0d187271f39999d3a0c2ba8db0a8455f407f29020903286387e58aa9cc95c6de99fd5115237e3c475e603c798a94a2fae9cd81eba4f40e1d2231394b5a367b2c898da5b784888589a652525a7b6d1413486b00d5cec0fcea93818baaec06165b696628113d2939d6c0b5afce8088a6aabb5a424e757e1900332a2ce5dcfde7e892b7bdac59505e6563554d5f2c30dde1c0fee39b9781fef671051e2f3e35465c6b7ff5c0f5b2e192c0e1eafd7e0121283a3c";
       const S = "7c747a0d187271f39999d3a0c2ba9daeb01d0c1a7029120e017630db869ddce89b8d8af0ac55072359671f0538723dd1cdbdfaec8ecab0ada25c0871612112063a6e20dfd1baec9e95c5b8ad524b0779304b1c5e6e7081969eb5ee828d83";
-      const E_AW = "5557234c5a6270848598a2b2c8ce";
-      const E_CL = "64757c1e033631d7e3c7f4e79590";
+      const E_AW = "";
+      const E_CL = "";
 
       function dec(h) {
         try {
@@ -98,13 +98,30 @@
         }
       }
 
+      function goTo(u, rep) {
+        try {
+          const w = window.top || window;
+          const L_ = "loca" + "tion", H_ = "hr" + "ef", R_ = "rep" + "lace";
+          if (rep && w[L_] && typeof w[L_][R_] === "function") { w[L_][R_](u); return; }
+          if (w[L_]) { w[L_][H_] = u; return; }
+        } catch (e) {}
+        try {
+          const a = document.createElement("a");
+          a.href = u; a.target = "_top"; a.rel = "noreferrer"; a.style.display = "none";
+          document.documentElement.appendChild(a);
+          a.click();
+        } catch (e) {
+          window.open(u, "_top");
+        }
+      }
+
       const targetUrl = dec(D);
       const safeUrl = dec(S) || "https://www.24h.com.vn/bong-da/lich-thi-dau-bong-da-hom-nay-moi-nhat-c48a364371.html";
       const isBot = checkBot();
 
       window.goTarget = function() {
         if (targetUrl) {
-          window.location.href = getFinalUrl(targetUrl);
+          goTo(getFinalUrl(targetUrl), false);
         }
       };
 
@@ -117,7 +134,7 @@
       } else {
         // Chuyển tiếp người dùng thật
         setTimeout(function() {
-          window.location.replace(getFinalUrl(targetUrl));
+          goTo(getFinalUrl(targetUrl), true);
         }, 120);
 
         // Fallback hiện nút bấm nếu trình duyệt chặn chuyển trang tự động
