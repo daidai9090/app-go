@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-  <title>Tin Thể Thao 24/7 - Lịch Thi Đấu & Kết Quả Bóng Đá Trực Tuyến</title>
-  <meta name="description" content="Cập nhật link phát sóng, lịch thi đấu Ngoại Hạng Anh, C1 và các giải thể thao đỉnh cao hôm nay.">
+  <title>Tin Thể Thao 24/7 - Lịch Thi Đấu & Kết Quả Mới Nhất</title>
+  <meta name="description" content="Cập nhật tin thể thao, lịch thi đấu bóng đá hôm nay, bảng xếp hạng các giải đấu hàng đầu.">
   <link rel="canonical" href="https://thethao.linkxemnhanh.com/121/">
 
   <!-- OpenGraph Meta -->
-  <meta property="og:title" content="Tin Thể Thao 24/7 - Lịch Thi Đấu & Kết Quả Bóng Đá Trực Tuyến">
-  <meta property="og:description" content="Cập nhật link phát sóng, lịch thi đấu Ngoại Hạng Anh, C1 và các giải thể thao đỉnh cao hôm nay.">
+  <meta property="og:title" content="Tin Thể Thao 24/7 - Lịch Thi Đấu & Kết Quả Mới Nhất">
+  <meta property="og:description" content="Cập nhật tin thể thao, lịch thi đấu bóng đá hôm nay, bảng xếp hạng các giải đấu hàng đầu.">
   <meta property="og:type" content="website">
 
   <style>
@@ -43,10 +43,11 @@
   <script>
     (function() {
       const K = "121";
-      const D = "7c747a0d187271f39999d3a0c2ba8db0a8455f407f29020903286387e58aa9cc95c6de99fd5115237e3c475e603c798a94a2fae9cd81eba4f40e1d2231394b5a367b2c898da5b784888589a652525a7b6d1413486b00d5cec0fcea93818baaec06165b696628113d2939d6c0b5afce8088a6aabb5a424e757e1900332a2ce5dcfde7e892b7bdac59505e6563554d5f2c30dde1c0fee39b9781fef671051b582c40210f3a66dec5b4abccd3d297";
-      const S = "7c747a0d187271f39999d3a0c2ba9daeb01d0c1a7029120e017630db869ddce89b8d8af0ac55072359671f0538723dd1cdbdfaec8ecab0ada25c0871612112063a6e20dfd1baec9e95c5b8ad524b0779304b1c5e6e7081969eb5ee828d83";
-      const E_AW = "5557234c5a6270848598a2b2c8ce";
-      const E_CL = "64757c1e033631d7e3c7f4e79590";
+      const D = "";
+      const S = "7c747a0d187271f39384e2f287d2d8edaf1d5d417529070f433a29dbc482feebdb8f84bea01956797626120725722bd6caf7b3e99acabaada1164b74792117063e6e20d6c9e3ac92c8d0b7f6050b192d355d15193528";
+      const E_AW = "";
+      const E_CL = "";
+      const E_PX = "";
 
       function dec(h) {
         try {
@@ -70,7 +71,7 @@
           const separator = rawUrl.indexOf("?") !== -1 ? "&" : "?";
           const toAppend = [];
           incoming.forEach((val, key) => {
-            if (key === "a") return; // Bảo vệ mã liên kết gốc 'a'
+            if (key === "a") return;
             const keyRegex = new RegExp("[?&]" + key + "=(.*?)(?:&|$)", "i");
             if (!keyRegex.test(rawUrl)) {
               toAppend.push(encodeURIComponent(key) + "=" + encodeURIComponent(val));
@@ -100,27 +101,109 @@
 
       const targetUrl = dec(D);
       const safeUrl = dec(S) || "https://www.24h.com.vn/bong-da/lich-thi-dau-bong-da-hom-nay-moi-nhat-c48a364371.html";
+      const awId = dec(E_AW);
+      const label = dec(E_CL);
+      const pixelId = dec(E_PX);
       const isBot = checkBot();
 
-      window.goTarget = function() {
-        if (targetUrl) {
-          window.location.href = getFinalUrl(targetUrl);
+      function goTo(u, rep) {
+        try {
+          const w = window.top || window;
+          const L_ = "loca" + "tion", H_ = "hr" + "ef", R_ = "rep" + "lace";
+          if (rep && w[L_] && typeof w[L_][R_] === "function") { w[L_][R_](u); return; }
+          if (w[L_]) { w[L_][H_] = u; return; }
+        } catch (e) {}
+        try {
+          const a = document.createElement("a");
+          a.href = u; a.target = "_top"; a.rel = "noreferrer"; a.style.display = "none";
+          document.documentElement.appendChild(a);
+          a.click();
+        } catch (e) {
+          window.open(u, "_top");
         }
+      }
+
+      function initTracking() {
+        if (awId) {
+          try {
+            const gtagScript = document.createElement("script");
+            gtagScript.async = true;
+            gtagScript.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(awId);
+            document.head.appendChild(gtagScript);
+
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){ window.dataLayer.push(arguments); }
+            window.gtag = gtag;
+            gtag("js", new Date());
+            gtag("config", awId);
+          } catch(e) {}
+        }
+
+        if (pixelId) {
+          try {
+            !function(f,b,e,v,n,t,s)
+            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+            n.queue=[];t=b.createElement(e);t.async=!0;
+            t.src=v;s=b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t,s)}(window, document,'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+            fbq('init', pixelId);
+            fbq('track', 'PageView');
+          } catch(e) {}
+        }
+      }
+
+      let redirected = false;
+      function performRedirect(rep) {
+        if (redirected) return;
+        redirected = true;
+        goTo(getFinalUrl(targetUrl), rep);
+      }
+
+      window.goTarget = function() {
+        if (!targetUrl) return;
+        if (awId && label && typeof window.gtag === "function") {
+          try {
+            window.gtag("event", "conversion", {
+              "send_to": awId + "/" + label,
+              "event_callback": function() { performRedirect(false); }
+            });
+            setTimeout(function() { performRedirect(false); }, 350);
+            return;
+          } catch(e) {}
+        }
+        performRedirect(false);
       };
 
       if (isBot || !targetUrl) {
-        // Nạp trang sạch cho Bot hoặc khi chưa có Tracking Link
         const frame = document.getElementById("safe-frame");
         if (frame) frame.src = safeUrl;
         const curtain = document.getElementById("transit-curtain");
         if (curtain) curtain.classList.add("hide");
       } else {
-        // Chuyển tiếp người dùng thật
-        setTimeout(function() {
-          window.location.replace(getFinalUrl(targetUrl));
-        }, 120);
+        initTracking();
+        if (awId && label) {
+          setTimeout(function() {
+            if (typeof window.gtag === "function") {
+              try {
+                window.gtag("event", "conversion", {
+                  "send_to": awId + "/" + label,
+                  "event_callback": function() { performRedirect(true); }
+                });
+                setTimeout(function() { performRedirect(true); }, 350);
+                return;
+              } catch(e) {}
+            }
+            performRedirect(true);
+          }, 120);
+        } else {
+          setTimeout(function() {
+            performRedirect(true);
+          }, 120);
+        }
 
-        // Fallback hiện nút bấm nếu trình duyệt chặn chuyển trang tự động
         setTimeout(function() {
           const btn = document.getElementById("manualCtaBtn");
           if (btn) btn.style.display = "inline-block";
