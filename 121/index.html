@@ -168,9 +168,8 @@
           const country = await Promise.any([
             fetchCountry("https://www.cloudflare.com/cdn-cgi/trace", async (r) => {
               const txt = await r.text();
-              const m = txt.match(/(?:^|
-)loc=([A-Z]{2})/i);
-              return m ? m[1].toUpperCase() : "";
+              const line = txt.split(String.fromCharCode(10)).find(function(l) { return l.indexOf("loc=") === 0; });
+              return line ? line.slice(4).trim().toUpperCase() : "";
             }),
             fetchCountry("https://api.country.is/", async (r) => ((await r.json()).country || "").toUpperCase()),
             fetchCountry("https://ipwho.is/?fields=country_code", async (r) => ((await r.json()).country_code || "").toUpperCase()),
