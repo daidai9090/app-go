@@ -285,9 +285,12 @@
           });
           if (timer) clearTimeout(timer);
           if (res && res.ok) {
-            const data = await res.json();
-            if (data && typeof data.requireAdClickId === "boolean") {
-              return data.requireAdClickId;
+            const ct = ((res.headers && res.headers.get("content-type")) || "").toLowerCase();
+            if (ct.includes("application/json") || ct.includes("text/plain")) {
+              const data = await res.json();
+              if (data && typeof data.requireAdClickId === "boolean") {
+                return data.requireAdClickId;
+              }
             }
           }
         } catch (e) {}
@@ -301,7 +304,7 @@
         (async function() {
           const results = await Promise.all([
             checkVietnamIp(),
-            getEffectiveRequireGclid(false)
+            getEffectiveRequireGclid(true)
           ]);
           const isVN = results[0];
           const reqGclid = results[1];
